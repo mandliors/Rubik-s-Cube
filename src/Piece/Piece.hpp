@@ -8,8 +8,6 @@
 
 #include <array>
 
-struct Vector3; // Forward declaration
-
 class Piece
 {
 public:

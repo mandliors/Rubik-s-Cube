@@ -1,8 +1,6 @@
 #include "Cube.hpp"
 
-#include <raylib.h>
 #include <raymath.h>
-#include <functional> // Include for std::reference_wrapper
 
 Cube::Cube(uint32_t layers, const Vector3& position, float size)
     : m_Layers(layers), m_Position(position), m_Size(size)

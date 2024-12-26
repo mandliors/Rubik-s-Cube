@@ -1,7 +1,5 @@
 #include "Piece.hpp"
 
-#include <raylib.h>
-
 Piece::Piece(const Vector3& position, float size)
     : m_Position(position), m_Size(size)
 {
