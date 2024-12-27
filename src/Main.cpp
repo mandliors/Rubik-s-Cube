@@ -33,6 +33,22 @@ int main()
                 break;
         }
 
+        if (IsKeyPressed(KEY_U))
+            cube.TurnU(IsKeyDown(KEY_LEFT_SHIFT));
+        if (IsKeyPressed(KEY_F))
+            cube.TurnF(IsKeyDown(KEY_LEFT_SHIFT));
+        if (IsKeyPressed(KEY_R))
+            cube.TurnR(IsKeyDown(KEY_LEFT_SHIFT));
+        if (IsKeyPressed(KEY_B))
+            cube.TurnB(IsKeyDown(KEY_LEFT_SHIFT));
+        if (IsKeyPressed(KEY_L))
+            cube.TurnL(IsKeyDown(KEY_LEFT_SHIFT));
+        if (IsKeyPressed(KEY_D))
+            cube.TurnD(IsKeyDown(KEY_LEFT_SHIFT));
+        if (IsKeyPressed(KEY_M))
+            cube.TurnM(IsKeyDown(KEY_LEFT_SHIFT));
+
+
         BeginDrawing();
         BeginMode3D(camera);
 

@@ -5,6 +5,7 @@
 #include "Face/FaceColor.hpp"
 
 #include <raylib.h>
+#include <raymath.h>
 
 #include <array>
 
@@ -25,15 +26,25 @@ public:
 
 public:
     Piece(const Vector3& position, float size);
-    
+
     inline auto SetFaceColor(Face face, FaceColor color) -> void
     {
         m_FaceColors[(int)face] = color;
     }
+
+    inline auto GetPosition() const -> Vector3
+    {
+        Vector3 avaragePosition = Vector3{ 0, 0, 0 };
+        for (const auto& vertex : m_Vertices)
+            avaragePosition += vertex;
+        avaragePosition /= 8;
+        return avaragePosition;
+    }
+
+    auto Rotate(const Vector3& axis, float angle) -> void;
     auto Draw(bool drawBlackFaces = false) const -> void;
 
 private:
-    Vector3 m_Position;
     float m_Size;
 
     std::array<Vector3, 8> m_Vertices;

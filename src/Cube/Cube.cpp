@@ -39,7 +39,7 @@ Cube::Cube(uint32_t layers, const Vector3& position, float size)
                 if (y == layers - 1)
                     piece.SetFaceColor(Face::Top, FaceColor::White);
                 if (z == 0)
-                    piece.SetFaceColor(Face::Back, FaceColor::Black);
+                    piece.SetFaceColor(Face::Back, FaceColor::Blue);
                 if (z == layers - 1)
                     piece.SetFaceColor(Face::Front, FaceColor::Green);
             }
@@ -47,12 +47,119 @@ Cube::Cube(uint32_t layers, const Vector3& position, float size)
 
 auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) -> void
 {
-    (void)layerType;
-    (void)layerIndex;
-    (void)clockwise;  
+    switch (layerType)
+    {
+        case LayerType::Horizontal:
+        {
+            // rotate the pieces phisically
+            for (uint32_t z = 0; z < m_Layers; z++)
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    auto piece = Get(x, layerIndex, z);
+                    if (!piece.has_value())
+                        continue;
+
+                    piece.value().get().Rotate(Vector3{ 0, 1, 0 }, clockwise ? -PI / 2 : PI / 2);
+                }
+
+            // caluculate the new piece for each slot
+            std::vector<Piece> newPieces;
+            newPieces.reserve(m_Layers);
+            for (uint32_t z = 0; z < m_Layers; z++)
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    if (clockwise)
+                        newPieces.push_back(Get(z, layerIndex, 2 - x).value().get());
+                    else
+                        newPieces.push_back(Get(2 - z, layerIndex, x).value().get());
+                }
+            
+            // set the new pieces to their new slots
+            for (uint32_t z = 0; z < m_Layers; z++)
+                for (uint32_t x = 0; x < m_Layers; x++)
+                    Set(x, layerIndex, z, newPieces[z * m_Layers + x]);
+
+            break;
+        }
+    
+        case LayerType::Vertical:
+        {
+            // rotate the pieces phisically
+            for (uint32_t z = 0; z < m_Layers; z++)
+                for (uint32_t y = 0; y < m_Layers; y++)
+                {
+                    auto piece = Get(layerIndex, y, z);
+                    if (!piece.has_value())
+                        continue;
+
+                    piece.value().get().Rotate(Vector3{ 1, 0, 0 }, clockwise ? -PI / 2 : PI / 2);
+                }
+
+            // caluculate the new piece for each slot
+            std::vector<Piece> newPieces;
+            newPieces.reserve(m_Layers);
+            for (uint32_t z = 0; z < m_Layers; z++)
+                for (uint32_t y = 0; y < m_Layers; y++)
+                {
+                    if (clockwise)
+                        newPieces.push_back(Get(layerIndex, 2 - z, y).value().get());
+                    else
+                        newPieces.push_back(Get(layerIndex, z, 2 - y).value().get());
+                }
+
+            // set the new pieces to their new slots
+            for (uint32_t z = 0; z < m_Layers; z++)
+                for (uint32_t y = 0; y < m_Layers; y++)
+                    Set(layerIndex, y, z, newPieces[z * m_Layers + y]);
+
+            break;
+        }
+
+        case LayerType::Depthical:
+        {
+            // rotate the pieces phisically
+            for (uint32_t y = 0; y < m_Layers; y++)
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    auto piece = Get(x, y, layerIndex);
+                    if (!piece.has_value())
+                        continue;
+
+                    piece.value().get().Rotate(Vector3{ 0, 0, 1 }, clockwise ? -PI / 2 : PI / 2);
+                }
+
+            // caluculate the new piece for each slot
+            std::vector<Piece> newPieces;
+            newPieces.reserve(m_Layers);
+            for (uint32_t y = 0; y < m_Layers; y++)
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    if (clockwise)
+                        newPieces.push_back(Get(2 - y, x, layerIndex).value().get());
+                    else
+                        newPieces.push_back(Get(y, 2 - x, layerIndex).value().get());
+                }
+            
+            // set the new pieces to their new slots
+            for (uint32_t y = 0; y < m_Layers; y++)
+                for (uint32_t x = 0; x < m_Layers; x++)
+                    Set(x, y, layerIndex, newPieces[y * m_Layers + x]);
+
+            break;
+        }
+    }
 }
 
 auto Cube::Get(uint32_t x, uint32_t y, uint32_t z) -> std::optional<std::reference_wrapper<Piece>>
+{
+    uint32_t index = z * m_Layers * m_Layers + y * m_Layers + x;
+    if (index >= m_Pieces.size())
+        return std::nullopt;
+    
+    return std::ref(m_Pieces[index]);
+}
+
+auto Cube::Get(uint32_t x, uint32_t y, uint32_t z) const -> std::optional<std::reference_wrapper<const Piece>>
 {
     uint32_t index = z * m_Layers * m_Layers + y * m_Layers + x;
     if (index >= m_Pieces.size())

@@ -1,18 +1,20 @@
 #include "Piece.hpp"
 
+#include <raymath.h>
+
 Piece::Piece(const Vector3& position, float size)
-    : m_Position(position), m_Size(size)
+    : m_Size(size)
 {
     const float halfSize = 0.5 * size;
 
-    m_Vertices[(int)PieceVertex::LBB] = { position.x - halfSize, position.y - halfSize, position.z - halfSize };
-    m_Vertices[(int)PieceVertex::RBB] = { position.x + halfSize, position.y - halfSize, position.z - halfSize };
-    m_Vertices[(int)PieceVertex::RTB] = { position.x + halfSize, position.y + halfSize, position.z - halfSize };
-    m_Vertices[(int)PieceVertex::LTB] = { position.x - halfSize, position.y + halfSize, position.z - halfSize };
-    m_Vertices[(int)PieceVertex::LBF] = { position.x - halfSize, position.y - halfSize, position.z + halfSize };
-    m_Vertices[(int)PieceVertex::RBF] = { position.x + halfSize, position.y - halfSize, position.z + halfSize };
-    m_Vertices[(int)PieceVertex::RTF] = { position.x + halfSize, position.y + halfSize, position.z + halfSize };
-    m_Vertices[(int)PieceVertex::LTF] = { position.x - halfSize, position.y + halfSize, position.z + halfSize };
+    m_Vertices[(int)PieceVertex::LBB] = position + Vector3 { -halfSize, -halfSize, -halfSize };
+    m_Vertices[(int)PieceVertex::RBB] = position + Vector3 { +halfSize, -halfSize, -halfSize };
+    m_Vertices[(int)PieceVertex::RTB] = position + Vector3 { +halfSize, +halfSize, -halfSize };
+    m_Vertices[(int)PieceVertex::LTB] = position + Vector3 { -halfSize, +halfSize, -halfSize };
+    m_Vertices[(int)PieceVertex::LBF] = position + Vector3 { -halfSize, -halfSize, +halfSize };
+    m_Vertices[(int)PieceVertex::RBF] = position + Vector3 { +halfSize, -halfSize, +halfSize };
+    m_Vertices[(int)PieceVertex::RTF] = position + Vector3 { +halfSize, +halfSize, +halfSize };
+    m_Vertices[(int)PieceVertex::LTF] = position + Vector3 { -halfSize, +halfSize, +halfSize };
 
     m_FaceColors[(int)Face::Top]    = FaceColor::Black;
     m_FaceColors[(int)Face::Front]  = FaceColor::Black;
@@ -20,6 +22,18 @@ Piece::Piece(const Vector3& position, float size)
     m_FaceColors[(int)Face::Back]   = FaceColor::Black;
     m_FaceColors[(int)Face::Left]   = FaceColor::Black;
     m_FaceColors[(int)Face::Bottom] = FaceColor::Black;
+}
+
+auto Piece::Rotate(const Vector3& axis, float angle) -> void
+{
+    Quaternion rotation = QuaternionFromAxisAngle(axis, angle);
+    for (int i = 0; i < 8; i++)
+    {
+        m_Vertices[i] = Vector3RotateByQuaternion(
+            m_Vertices[i],
+            rotation
+        );
+    }
 }
 
 auto Piece::Draw(bool drawBlackFaces) const -> void
