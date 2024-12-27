@@ -1,4 +1,4 @@
-# How to use the game
+# How to play the game
 
 Clone the repo first and step into the root folder
 ```
