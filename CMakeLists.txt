@@ -38,6 +38,13 @@ target_link_libraries(${PROJECT_NAME}
 )
 target_compile_options(${PROJECT_NAME} PRIVATE
     -Wall
+    -Werror
+    -Wextra
+    -Wpedantic
+    #-Wconversion
+
+    -Wno-missing-field-initializers
+    -Wno-unused-variable
 )
 target_compile_options(${PROJECT_NAME} PRIVATE
     -fsanitize=address

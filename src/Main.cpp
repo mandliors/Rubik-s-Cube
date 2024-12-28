@@ -6,10 +6,9 @@ int main()
 {
     InitWindow(1600, 1200, "Rubix Cube");
     SetTargetFPS(120);
-    SetExitKey(0);
 
     Camera camera = {
-        .position = { 2.0f, 4.0f, 6.0f },
+        .position = { 0.0f, 0.0f, 7.0f },
         .target = { 0.0f, 0.0f, 0.0f },
         .up = { 0.0f, 1.0f, 0.0f },
         .fovy = 45.0f,
@@ -20,19 +19,6 @@ int main()
 
     while (!WindowShouldClose())
     {
-        if (IsCursorHidden())
-            UpdateCamera(&camera, CAMERA_FIRST_PERSON);
-
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-            DisableCursor();
-        if (IsKeyPressed(KEY_ESCAPE))
-        {
-            if (IsCursorHidden())
-                EnableCursor();
-            else
-                break;
-        }
-
         if (IsKeyPressed(KEY_U))
             cube.TurnU(IsKeyDown(KEY_LEFT_SHIFT));
         if (IsKeyPressed(KEY_F))
@@ -53,9 +39,21 @@ int main()
         BeginMode3D(camera);
 
         ClearBackground(Color{ 40, 40, 40, 255 });
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+            DisableCursor();
+
+        if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+            cube.Rotate(GetMouseDelta().y * 0.003f, GetMouseDelta().x * 0.003f, 0);
+        
+        if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+            EnableCursor();
+
+
         cube.Draw();
 
         EndMode3D();
+
         EndDrawing();
     }
 

@@ -3,12 +3,13 @@
 
 enum class Face
 {
-    Front = 0,
+    Top = 0,
+    Front,
+    Right,
     Back,
     Left,
-    Right,
-    Top,
-    Bottom
+    Bottom,
+    None
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "Cube.hpp"
 
 #include <raymath.h>
+#include <rlgl.h>
 
 Cube::Cube(uint32_t layers, const Vector3& position, float size)
     : m_Layers(layers), m_Position(position), m_Size(size)
@@ -31,25 +32,28 @@ Cube::Cube(uint32_t layers, const Vector3& position, float size)
             {
                 Piece& piece = Get(x, y, z).value().get();
                 if (x == 0)
-                    piece.SetFaceColor(Face::Left, FaceColor::Orange);
+                    piece.SetFaceColor(Face::Left, FaceColor::Orange, true);
                 if (x == layers - 1)
-                    piece.SetFaceColor(Face::Right, FaceColor::Red);
+                    piece.SetFaceColor(Face::Right, FaceColor::Red, true);
                 if (y == 0)
-                    piece.SetFaceColor(Face::Bottom, FaceColor::Yellow);
+                    piece.SetFaceColor(Face::Bottom, FaceColor::Yellow, true);
                 if (y == layers - 1)
-                    piece.SetFaceColor(Face::Top, FaceColor::White);
+                    piece.SetFaceColor(Face::Top, FaceColor::White, true);
                 if (z == 0)
-                    piece.SetFaceColor(Face::Back, FaceColor::Blue);
+                    piece.SetFaceColor(Face::Back, FaceColor::Blue, true);
                 if (z == layers - 1)
-                    piece.SetFaceColor(Face::Front, FaceColor::Green);
+                    piece.SetFaceColor(Face::Front, FaceColor::Green, true);
             }
+
+    // initialize the rotation matrix
+    m_RotationMatrix = MatrixIdentity();
 }
 
-auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) -> void
+auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) -> void
 {
-    switch (layerType)
+    switch (direction)
     {
-        case LayerType::Horizontal:
+        case Direction::Horizontal:
         {
             // rotate the pieces phisically
             for (uint32_t z = 0; z < m_Layers; z++)
@@ -59,7 +63,7 @@ auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) ->
                     if (!piece.has_value())
                         continue;
 
-                    piece.value().get().Rotate(Vector3{ 0, 1, 0 }, clockwise ? -PI / 2 : PI / 2);
+                    piece.value().get().Rotate(direction, clockwise);
                 }
 
             // caluculate the new piece for each slot
@@ -82,7 +86,7 @@ auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) ->
             break;
         }
     
-        case LayerType::Vertical:
+        case Direction::Vertical:
         {
             // rotate the pieces phisically
             for (uint32_t z = 0; z < m_Layers; z++)
@@ -92,7 +96,7 @@ auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) ->
                     if (!piece.has_value())
                         continue;
 
-                    piece.value().get().Rotate(Vector3{ 1, 0, 0 }, clockwise ? -PI / 2 : PI / 2);
+                    piece.value().get().Rotate(direction, clockwise);
                 }
 
             // caluculate the new piece for each slot
@@ -115,7 +119,7 @@ auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) ->
             break;
         }
 
-        case LayerType::Depthical:
+        case Direction::Depthical:
         {
             // rotate the pieces phisically
             for (uint32_t y = 0; y < m_Layers; y++)
@@ -125,7 +129,7 @@ auto Cube::TurnSide(LayerType layerType, uint32_t layerIndex, bool clockwise) ->
                     if (!piece.has_value())
                         continue;
 
-                    piece.value().get().Rotate(Vector3{ 0, 0, 1 }, clockwise ? -PI / 2 : PI / 2);
+                    piece.value().get().Rotate(direction, clockwise);
                 }
 
             // caluculate the new piece for each slot
@@ -179,9 +183,14 @@ auto Cube::Set(uint32_t x, uint32_t y, uint32_t z, const Piece& piece) -> void
 
 auto Cube::Draw() const -> void
 {
+    rlPushMatrix();
+    rlMultMatrixf(MatrixToFloat(m_RotationMatrix));
+
     const float internalCubeSize = m_Size - 1.5f * m_Size / m_Layers * (1 - STICKER_SCALE);
     DrawCube(m_Position, internalCubeSize, internalCubeSize, internalCubeSize, BLACK);
 
     for (const auto& piece : m_Pieces)
         piece.Draw();
+
+    rlPopMatrix();
 }
