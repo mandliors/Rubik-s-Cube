@@ -73,9 +73,9 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
                 for (uint32_t x = 0; x < m_Layers; x++)
                 {
                     if (clockwise)
-                        newPieces.push_back(Get(z, layerIndex, 2 - x).value().get());
+                        newPieces.push_back(Get(z, layerIndex, m_Layers - 1 - x).value().get());
                     else
-                        newPieces.push_back(Get(2 - z, layerIndex, x).value().get());
+                        newPieces.push_back(Get(m_Layers - 1 - z, layerIndex, x).value().get());
                 }
             
             // set the new pieces to their new slots
@@ -106,9 +106,9 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
                 for (uint32_t y = 0; y < m_Layers; y++)
                 {
                     if (clockwise)
-                        newPieces.push_back(Get(layerIndex, 2 - z, y).value().get());
+                        newPieces.push_back(Get(layerIndex, m_Layers - 1 - z, y).value().get());
                     else
-                        newPieces.push_back(Get(layerIndex, z, 2 - y).value().get());
+                        newPieces.push_back(Get(layerIndex, z, m_Layers - 1 - y).value().get());
                 }
 
             // set the new pieces to their new slots
@@ -139,9 +139,9 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
                 for (uint32_t x = 0; x < m_Layers; x++)
                 {
                     if (clockwise)
-                        newPieces.push_back(Get(2 - y, x, layerIndex).value().get());
+                        newPieces.push_back(Get(m_Layers - 1 - y, x, layerIndex).value().get());
                     else
-                        newPieces.push_back(Get(y, 2 - x, layerIndex).value().get());
+                        newPieces.push_back(Get(y, m_Layers - 1 - x, layerIndex).value().get());
                 }
             
             // set the new pieces to their new slots
