@@ -22,7 +22,7 @@ auto CubeSolver::_Solve2x2() -> void
 
     if (wrg.X == 0 && wrg.Y == 0 && wrg.Z == 0)
     {
-        m_Cube.TurnD();
+        m_Cube.MakeMove(Move::D);
     }
     else if (wrg.X == 0 && wrg.Y == 0 && wrg.Z == 1)   
     {
@@ -30,32 +30,32 @@ auto CubeSolver::_Solve2x2() -> void
     }
     else if (wrg.X == 0 && wrg.Y == 1 && wrg.Z == 0)
     {
-        m_Cube.TurnB();
-        m_Cube.TurnD();
+        m_Cube.MakeMove(Move::B);
+        m_Cube.MakeMove(Move::D);
     }
     else if (wrg.X == 0 && wrg.Y == 1 && wrg.Z == 1)
     {
-        m_Cube.TurnL();
+        m_Cube.MakeMove(Move::L);
     }
     else if (wrg.X == 1 && wrg.Y == 0 && wrg.Z == 0)
     {
-        m_Cube.TurnD();
-        m_Cube.TurnD();
+        m_Cube.MakeMove(Move::D);
+        m_Cube.MakeMove(Move::D);
     }
     else if (wrg.X == 1 && wrg.Y == 0 && wrg.Z == 1)
     {
-        m_Cube.TurnD(false);
+        m_Cube.MakeMove(Move::D_);
     }
     else if (wrg.X == 1 && wrg.Y == 1 && wrg.Z == 0)
     {
-        m_Cube.TurnR();
-        m_Cube.TurnD();
-        m_Cube.TurnD();
+        m_Cube.MakeMove(Move::R);
+        m_Cube.MakeMove(Move::D);
+        m_Cube.MakeMove(Move::D);
     }
     else if (wrg.X == 1 && wrg.Y == 1 && wrg.Z == 1)
     {
-        m_Cube.TurnF();
-        m_Cube.TurnF();
+        m_Cube.MakeMove(Move::F);
+        m_Cube.MakeMove(Move::F);
     }
 }
 auto CubeSolver::_Solve3x3() -> void

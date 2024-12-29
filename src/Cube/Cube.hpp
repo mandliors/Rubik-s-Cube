@@ -4,6 +4,7 @@
 #include "Piece/Piece.hpp"
 #include "Piece/PieceLocation.hpp"
 #include "Direction/Direction.hpp"
+#include "Move/Move.hpp"
 
 #include <raylib.h>
 
@@ -16,32 +17,23 @@ class Cube
 public:
     Cube(uint32_t layers, const Vector3& position, float size);
     
-    auto TurnSide(Direction layerType, uint32_t layerIndex, bool clockwise) -> void;
-    
-    inline auto TurnU(bool clockwise = true) -> void { TurnSide(Direction::Horizontal, m_Layers - 1, clockwise); }
-    inline auto TurnF(bool clockwise = true) -> void { TurnSide(Direction::Depthical, m_Layers - 1, clockwise); }
-    inline auto TurnR(bool clockwise = true) -> void { TurnSide(Direction::Vertical, m_Layers - 1, clockwise); }
-    inline auto TurnB(bool clockwise = true) -> void { TurnSide(Direction::Depthical, 0, !clockwise); }
-    inline auto TurnL(bool clockwise = true) -> void { TurnSide(Direction::Vertical, 0, !clockwise); }
-    inline auto TurnD(bool clockwise = true) -> void { TurnSide(Direction::Horizontal, 0, !clockwise); }
-    inline auto TurnM(bool clockwise = true) -> void
+    auto MakeMove(Move move) -> void;
+    auto MakeMoves(const std::string& moveString) -> void;
+    inline auto MakeMoves(Move move, auto... moves) -> void
     {
-        if (m_Layers % 2 == 0)
-            return;
-
-        for (uint32_t x = 1; x < m_Layers - 1; x++)
-            TurnSide(Direction::Vertical, x, clockwise);
+        MakeMove(move);
+        (MakeMove(moves), ...);
     }
-
+    
     auto Scramble() -> void;
     auto IsSolved() const -> bool;
 
     inline auto GetSize() -> uint32_t { return m_Layers; }
-    
+
     auto Get(uint32_t x, uint32_t y, uint32_t z) -> std::optional<std::reference_wrapper<Piece>>;
     auto Get(uint32_t x, uint32_t y, uint32_t z) const -> std::optional<std::reference_wrapper<const Piece>>;
     auto Set(uint32_t x, uint32_t y, uint32_t z, const Piece& piece) -> void;
-
+    
     auto FindPieceByColors(FaceColor color, auto... colors) -> std::optional<std::reference_wrapper<const Piece>>
     {
         for (const auto& piece : m_Pieces) 
@@ -74,6 +66,8 @@ public:
     }
 
     auto Draw() const -> void;
+
+    auto TurnSide(Direction layerType, uint32_t layerIndex, bool clockwise) -> void;
 
 private:
     static constexpr float STICKER_SCALE = 0.9f;

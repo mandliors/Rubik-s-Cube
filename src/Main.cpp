@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+auto CheckMoves(Cube& cube) -> void;
+
 int main()
 {
     InitWindow(1600, 1200, "Rubix Cube");
@@ -23,6 +25,8 @@ int main()
 
     CubeSolver solver(cube);
 
+    cube.MakeMoves("z2 R U R' U'");
+
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_SPACE))
@@ -30,21 +34,7 @@ int main()
         if (IsKeyPressed(KEY_ENTER))
             solver.Solve();
 
-        if (IsKeyPressed(KEY_U))
-            cube.TurnU(!IsKeyDown(KEY_LEFT_SHIFT));
-        if (IsKeyPressed(KEY_F))
-            cube.TurnF(!IsKeyDown(KEY_LEFT_SHIFT));
-        if (IsKeyPressed(KEY_R))
-            cube.TurnR(!IsKeyDown(KEY_LEFT_SHIFT));
-        if (IsKeyPressed(KEY_B))
-            cube.TurnB(!IsKeyDown(KEY_LEFT_SHIFT));
-        if (IsKeyPressed(KEY_L))
-            cube.TurnL(!IsKeyDown(KEY_LEFT_SHIFT));
-        if (IsKeyPressed(KEY_D))
-            cube.TurnD(!IsKeyDown(KEY_LEFT_SHIFT));
-        if (IsKeyPressed(KEY_M))
-            cube.TurnM(IsKeyDown(KEY_LEFT_SHIFT));
-
+        CheckMoves(cube);
 
         BeginDrawing();
         BeginMode3D(camera);
@@ -65,7 +55,7 @@ int main()
 
         EndMode3D();
 
-        DrawText(cube.IsSolved() ? "Solved" : "Not solved", 10, 10, 40, WHITE);
+        DrawText(cube.IsSolved() ? "Solved" : "Not solved", 20, 20, 40, WHITE);
 
         EndDrawing();
     }
@@ -73,4 +63,42 @@ int main()
     CloseWindow();
 
     return 0;
+}
+
+auto CheckMoves(Cube& cube) -> void
+{
+    if (IsKeyDown(KEY_LEFT_SHIFT))
+    {
+        if (IsKeyPressed(KEY_U))
+            cube.MakeMove(Move::U_);
+        if (IsKeyPressed(KEY_F))
+            cube.MakeMove(Move::F_);
+        if (IsKeyPressed(KEY_R))
+            cube.MakeMove(Move::R_);
+        if (IsKeyPressed(KEY_B))
+            cube.MakeMove(Move::B_);
+        if (IsKeyPressed(KEY_L))
+            cube.MakeMove(Move::L_);
+        if (IsKeyPressed(KEY_D))
+            cube.MakeMove(Move::D_);
+        if (IsKeyPressed(KEY_M))
+            cube.MakeMove(Move::M_);
+    }
+    else
+    {
+        if (IsKeyPressed(KEY_U))
+            cube.MakeMove(Move::U);
+        if (IsKeyPressed(KEY_F))
+            cube.MakeMove(Move::F);
+        if (IsKeyPressed(KEY_R))
+            cube.MakeMove(Move::R);
+        if (IsKeyPressed(KEY_B))
+            cube.MakeMove(Move::B);
+        if (IsKeyPressed(KEY_L))
+            cube.MakeMove(Move::L);
+        if (IsKeyPressed(KEY_D))
+            cube.MakeMove(Move::D);
+        if (IsKeyPressed(KEY_M))
+            cube.MakeMove(Move::M);
+    }
 }
