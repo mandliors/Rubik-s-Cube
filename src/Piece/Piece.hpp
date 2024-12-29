@@ -48,7 +48,7 @@ public:
 
         return Face::None;
     }
-    auto GetPosition() const -> Vector3;
+    inline auto GetFaceColor(Face face) const -> FaceColor { return m_CurrentFaceColors[(int)face]; }
 
     auto Rotate(Direction direction, bool clockwise) -> void;
     auto Draw(bool drawBlackFaces = false) const -> void;

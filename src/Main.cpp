@@ -1,6 +1,9 @@
 #include "Cube/Cube.hpp"
+#include "CubeSolver/CubeSolver.hpp"
 
 #include <raylib.h>
+
+#include <iostream>
 
 int main()
 {
@@ -15,11 +18,18 @@ int main()
         .projection = CAMERA_PERSPECTIVE
     };
 
-    Cube cube { 4, Vector3{ 0, 0, 0 }, 2.0f };
+    Cube cube { 2, Vector3{ 0, 0, 0 }, 2.0f };
     cube.Rotate(0.4f, -0.2f, 0.0f);
+
+    CubeSolver solver(cube);
 
     while (!WindowShouldClose())
     {
+        if (IsKeyPressed(KEY_SPACE))
+            cube.Scramble();
+        if (IsKeyPressed(KEY_ENTER))
+            solver.Solve();
+
         if (IsKeyPressed(KEY_U))
             cube.TurnU(IsKeyDown(KEY_LEFT_SHIFT));
         if (IsKeyPressed(KEY_F))
@@ -54,6 +64,8 @@ int main()
         cube.Draw();
 
         EndMode3D();
+
+        DrawText(cube.IsSolved() ? "Solved" : "Not solved", 10, 10, 40, WHITE);
 
         EndDrawing();
     }

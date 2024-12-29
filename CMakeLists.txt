@@ -27,8 +27,9 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_sources(${PROJECT_NAME} PRIVATE
     src/Main.cpp
-    src/Cube/Cube.cpp
     src/Piece/Piece.cpp
+    src/Cube/Cube.cpp
+    src/CubeSolver/CubeSolver.cpp
 )
 include_directories(${PROJECT_NAME} PRIVATE
     src
