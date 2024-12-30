@@ -54,34 +54,16 @@ Piece::Piece(const Vector3& position, float size)
     m_StartingFaceColors[static_cast<int>(Face::Back)]   = m_CurrentFaceColors[static_cast<int>(Face::Back)]   = FaceColor::NONE;
     m_StartingFaceColors[static_cast<int>(Face::Left)]   = m_CurrentFaceColors[static_cast<int>(Face::Left)]   = FaceColor::NONE;
     m_StartingFaceColors[static_cast<int>(Face::Bottom)] = m_CurrentFaceColors[static_cast<int>(Face::Bottom)] = FaceColor::NONE;
+
+    m_Rotating = false;
+    m_RotationMatrix = MatrixIdentity();
 }
 
 auto Piece::Rotate(Direction direction, bool clockwise) -> void
 {
-    // get the rotation axis
-    Vector3 axis;
-    switch (direction)
-    {
-    case Direction::Horizontal:
-        axis = Vector3{ 0, 1, 0 };
-        break;
-    case Direction::Vertical:
-        axis = Vector3{ 1, 0, 0 };
-        break;
-    case Direction::Depthical:
-        axis = Vector3{ 0, 0, 1 };
-        break;
-    }
-
-    // rotate the vertices
-    Quaternion rotation = QuaternionFromAxisAngle(axis, clockwise ? -PI / 2 : PI / 2);
-    for (int i = 0; i < 8; i++)
-    {
-        m_Vertices[i] = Vector3RotateByQuaternion(
-            m_Vertices[i],
-            rotation
-        );
-    }
+    // set the rotation
+    m_Rotation = Rotation { direction, clockwise };
+    m_Rotating = true;
 
     // rotate the face colors
     std::array<FaceColor, 6> newFaceColors;
@@ -93,21 +75,45 @@ auto Piece::Rotate(Direction direction, bool clockwise) -> void
     m_CurrentFaceColors = newFaceColors;
 }
 
+auto Piece::UpdateRotation(float rotation) -> void
+{
+    if (m_Rotating == false)
+        return;
+
+    if (m_Rotation.Update(rotation))
+    {
+        m_Rotating = false;
+        m_RotationMatrix = MatrixMultiply(
+            m_RotationMatrix,
+            MatrixRotateXYZ(m_Rotation.GetRotationVector())
+        );
+    }
+}
+
 auto Piece::Draw(bool drawBlackFaces) const -> void
 {
+    // calculate the rotated vertices
+    std::array<Vector3, 8> m_TransformedVertices;
+    for (int i = 0; i < 8; i++)
+    {
+        m_TransformedVertices[i] = Vector3Transform(m_Vertices[i], m_RotationMatrix);
+        if (m_Rotating)
+            m_TransformedVertices[i] = Vector3Transform(m_TransformedVertices[i], MatrixRotateXYZ(m_Rotation.GetRotationVector()));
+    }
+
     // top face
     if (drawBlackFaces || m_StartingFaceColors[static_cast<int>(Face::Top)] != FaceColor::NONE) 
     {
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LTF)],
-            m_Vertices[static_cast<int>(PieceVertex::RTF)],
-            m_Vertices[static_cast<int>(PieceVertex::RTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Top)])]
         );
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LTF)],
-            m_Vertices[static_cast<int>(PieceVertex::RTB)],
-            m_Vertices[static_cast<int>(PieceVertex::LTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Top)])]
         );
     }
@@ -116,15 +122,15 @@ auto Piece::Draw(bool drawBlackFaces) const -> void
     if (drawBlackFaces || m_StartingFaceColors[static_cast<int>(Face::Front)] != FaceColor::NONE) 
     {
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LBF)],
-            m_Vertices[static_cast<int>(PieceVertex::RBF)],
-            m_Vertices[static_cast<int>(PieceVertex::RTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Front)])]
         );
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LBF)],
-            m_Vertices[static_cast<int>(PieceVertex::RTF)],
-            m_Vertices[static_cast<int>(PieceVertex::LTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Front)])]
         );
     }
@@ -133,15 +139,15 @@ auto Piece::Draw(bool drawBlackFaces) const -> void
     if (drawBlackFaces || m_StartingFaceColors[static_cast<int>(Face::Right)] != FaceColor::NONE) 
     {
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::RBF)],
-            m_Vertices[static_cast<int>(PieceVertex::RBB)],
-            m_Vertices[static_cast<int>(PieceVertex::RTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Right)])]
         );
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::RBF)],
-            m_Vertices[static_cast<int>(PieceVertex::RTB)],
-            m_Vertices[static_cast<int>(PieceVertex::RTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Right)])]
         );
     }
@@ -150,15 +156,15 @@ auto Piece::Draw(bool drawBlackFaces) const -> void
     if (drawBlackFaces || m_StartingFaceColors[(int)Face::Back] != FaceColor::NONE) 
     {
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::RBB)],
-            m_Vertices[static_cast<int>(PieceVertex::LBB)],
-            m_Vertices[static_cast<int>(PieceVertex::LTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Back)])]
         );
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::RBB)],
-            m_Vertices[static_cast<int>(PieceVertex::LTB)],
-            m_Vertices[static_cast<int>(PieceVertex::RTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Back)])]
         );
     }
@@ -167,15 +173,15 @@ auto Piece::Draw(bool drawBlackFaces) const -> void
     if (drawBlackFaces || m_StartingFaceColors[(int)Face::Left] != FaceColor::NONE) 
     {
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LBB)],
-            m_Vertices[static_cast<int>(PieceVertex::LBF)],
-            m_Vertices[static_cast<int>(PieceVertex::LTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Left)])]
         );
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LBB)],
-            m_Vertices[static_cast<int>(PieceVertex::LTF)],
-            m_Vertices[static_cast<int>(PieceVertex::LTB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Left)])]
         );
     }
@@ -184,15 +190,15 @@ auto Piece::Draw(bool drawBlackFaces) const -> void
     if (drawBlackFaces || m_StartingFaceColors[(int)Face::Bottom] != FaceColor::NONE) 
     {
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LBB)],
-            m_Vertices[static_cast<int>(PieceVertex::RBB)],
-            m_Vertices[static_cast<int>(PieceVertex::RBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Bottom)])]
         );
         DrawTriangle3D(
-            m_Vertices[static_cast<int>(PieceVertex::LBB)],
-            m_Vertices[static_cast<int>(PieceVertex::RBF)],
-            m_Vertices[static_cast<int>(PieceVertex::LBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
+            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
             FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Bottom)])]
         );
     }

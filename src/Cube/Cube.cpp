@@ -373,6 +373,12 @@ auto Cube::IsSolved() const -> bool
     return true;
 }
 
+auto Cube::Update(float deltaTime) -> void
+{
+    for (auto& piece : m_Pieces)
+        piece.UpdateRotation(ROTATION_SPEED * deltaTime);
+}
+
 auto Cube::Draw() const -> void
 {
     rlPushMatrix();

@@ -86,12 +86,14 @@ public:
         m_RotationMatrix = MatrixMultiply(m_RotationMatrix, MatrixRotateXYZ(Vector3{ x, y, z }));
     }
 
+    auto Update(float deltaTime) -> void;
     auto Draw() const -> void;
 
     auto TurnSide(Direction layerType, uint32_t layerIndex, bool clockwise) -> void;
 
 private:
     static constexpr float STICKER_SCALE = 0.9f;
+    static constexpr float ROTATION_SPEED = 5.0f;
 
 private:
     uint32_t m_Layers;

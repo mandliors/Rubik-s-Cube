@@ -4,6 +4,7 @@
 #include "Face/Face.hpp"
 #include "Face/FaceColor.hpp"
 #include "Direction/Direction.hpp"
+#include "Rotation/Rotation.hpp"
 
 #include <raylib.h>
 #include <raymath.h>
@@ -51,6 +52,7 @@ public:
     inline auto GetFaceColor(Face face) const -> FaceColor { return m_CurrentFaceColors[(int)face]; }
 
     auto Rotate(Direction direction, bool clockwise) -> void;
+    auto UpdateRotation(float rotation) -> void;
     auto Draw(bool drawBlackFaces = false) const -> void;
 
 private:
@@ -62,6 +64,11 @@ private:
     std::array<Vector3, 8> m_Vertices;
     std::array<FaceColor, 6> m_StartingFaceColors;
     std::array<FaceColor, 6> m_CurrentFaceColors;
+    
+    bool m_Rotating;
+    Rotation m_Rotation;
+
+    Matrix m_RotationMatrix;
 };
 
 #endif

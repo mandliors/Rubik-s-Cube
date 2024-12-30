@@ -48,7 +48,7 @@ int main()
         if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
             EnableCursor();
 
-
+        cube.Update(GetFrameTime());
         cube.Draw();
 
         EndMode3D();
