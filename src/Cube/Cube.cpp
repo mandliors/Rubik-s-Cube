@@ -30,7 +30,7 @@ Cube::Cube(uint32_t layers, const Vector3& position, float size)
         for (uint32_t y = 0; y < layers; y++)
             for (uint32_t x = 0; x < layers; x++)
             {
-                Piece& piece = Get(x, y, z).value().get();
+                Piece& piece = Get({ x, y, z }).value().get();
                 if (x == 0)
                     piece.SetFaceColor(Face::Left, FaceColor::Orange, true);
                 if (x == layers - 1)
@@ -329,75 +329,48 @@ auto Cube::IsSolved() const -> bool
     FaceColor color;
 
     // check the colors of the back face
-    color = Get(0, 0, 0).value().get().GetFaceColor(Face::Back);
+    color = Get({ 0, 0, 0 }).value().get().GetFaceColor(Face::Back);
     for (uint32_t y = 0; y < m_Layers; y++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get(x, y, 0).value().get().GetFaceColor(Face::Back) != color)
+            if (Get({ x, y, 0 }).value().get().GetFaceColor(Face::Back) != color)
                 return false;
 
     // check the colors of the bottom face
-    color = Get(0, 0, 0).value().get().GetFaceColor(Face::Bottom);
+    color = Get({ 0, 0, 0 }).value().get().GetFaceColor(Face::Bottom);
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get(x, 0, z).value().get().GetFaceColor(Face::Bottom) != color)
+            if (Get({ x, 0, z }).value().get().GetFaceColor(Face::Bottom) != color)
                 return false;
     
     // check the colors of the left face
-    color = Get(0, 0, 0).value().get().GetFaceColor(Face::Left);
+    color = Get({ 0, 0, 0 }).value().get().GetFaceColor(Face::Left);
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t y = 0; y < m_Layers; y++)
-            if (Get(0, y, z).value().get().GetFaceColor(Face::Left) != color)
+            if (Get({ 0, y, z }).value().get().GetFaceColor(Face::Left) != color)
                 return false;
 
     // check the colors of the front face
-    color = Get(m_Layers - 1, m_Layers - 1, m_Layers - 1).value().get().GetFaceColor(Face::Front);
+    color = Get({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get().GetFaceColor(Face::Front);
     for (uint32_t y = 0; y < m_Layers; y++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get(x, y, m_Layers - 1).value().get().GetFaceColor(Face::Front) != color)
+            if (Get({ x, y, m_Layers - 1 }).value().get().GetFaceColor(Face::Front) != color)
                 return false;
 
     // check the colors of the top face
-    color = Get(m_Layers - 1, m_Layers - 1, m_Layers - 1).value().get().GetFaceColor(Face::Top);
+    color = Get({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get().GetFaceColor(Face::Top);
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get(x, m_Layers - 1, z).value().get().GetFaceColor(Face::Top) != color)
+            if (Get({ x, m_Layers - 1, z }).value().get().GetFaceColor(Face::Top) != color)
                 return false;
 
     // check the colors of the right face
-    color = Get(m_Layers - 1, m_Layers - 1, m_Layers - 1).value().get().GetFaceColor(Face::Right);
+    color = Get({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get().GetFaceColor(Face::Right);
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t y = 0; y < m_Layers; y++)
-            if (Get(m_Layers - 1, y, z).value().get().GetFaceColor(Face::Right) != color)
+            if (Get({ m_Layers - 1, y, z }).value().get().GetFaceColor(Face::Right) != color)
                 return false;
         
     return true;
-}
-
-auto Cube::Get(uint32_t x, uint32_t y, uint32_t z) -> std::optional<std::reference_wrapper<Piece>>
-{
-    uint32_t index = z * m_Layers * m_Layers + y * m_Layers + x;
-    if (index >= m_Pieces.size())
-        return std::nullopt;
-    
-    return std::ref(m_Pieces[index]);
-}
-
-auto Cube::Get(uint32_t x, uint32_t y, uint32_t z) const -> std::optional<std::reference_wrapper<const Piece>>
-{
-    uint32_t index = z * m_Layers * m_Layers + y * m_Layers + x;
-    if (index >= m_Pieces.size())
-        return std::nullopt;
-    
-    return std::ref(m_Pieces[index]);
-}
-
-auto Cube::Set(uint32_t x, uint32_t y, uint32_t z, const Piece& piece) -> void
-{
-    uint32_t index = z * m_Layers * m_Layers + y * m_Layers + x;
-    if (index >= m_Pieces.size())
-        return;
-    
-    m_Pieces[index] = piece;
 }
 
 auto Cube::Draw() const -> void
@@ -424,7 +397,7 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
             for (uint32_t z = 0; z < m_Layers; z++)
                 for (uint32_t x = 0; x < m_Layers; x++)
                 {
-                    auto piece = Get(x, layerIndex, z);
+                    auto piece = Get({ x, layerIndex, z });
                     if (!piece.has_value())
                         continue;
 
@@ -438,15 +411,15 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
                 for (uint32_t x = 0; x < m_Layers; x++)
                 {
                     if (clockwise)
-                        newPieces.push_back(Get(z, layerIndex, m_Layers - 1 - x).value().get());
+                        newPieces.push_back(Get({ z, layerIndex, m_Layers - 1 - x }).value().get());
                     else
-                        newPieces.push_back(Get(m_Layers - 1 - z, layerIndex, x).value().get());
+                        newPieces.push_back(Get({ m_Layers - 1 - z, layerIndex, x }).value().get());
                 }
             
             // set the new pieces to their new slots
             for (uint32_t z = 0; z < m_Layers; z++)
                 for (uint32_t x = 0; x < m_Layers; x++)
-                    Set(x, layerIndex, z, newPieces[z * m_Layers + x]);
+                    Set({ x, layerIndex, z }, newPieces[z * m_Layers + x]);
 
             break;
         }
@@ -457,7 +430,7 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
             for (uint32_t z = 0; z < m_Layers; z++)
                 for (uint32_t y = 0; y < m_Layers; y++)
                 {
-                    auto piece = Get(layerIndex, y, z);
+                    auto piece = Get({ layerIndex, y, z });
                     if (!piece.has_value())
                         continue;
 
@@ -471,15 +444,15 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
                 for (uint32_t y = 0; y < m_Layers; y++)
                 {
                     if (clockwise)
-                        newPieces.push_back(Get(layerIndex, m_Layers - 1 - z, y).value().get());
+                        newPieces.push_back(Get({ layerIndex, m_Layers - 1 - z, y }).value().get());
                     else
-                        newPieces.push_back(Get(layerIndex, z, m_Layers - 1 - y).value().get());
+                        newPieces.push_back(Get({ layerIndex, z, m_Layers - 1 - y }).value().get());
                 }
 
             // set the new pieces to their new slots
             for (uint32_t z = 0; z < m_Layers; z++)
                 for (uint32_t y = 0; y < m_Layers; y++)
-                    Set(layerIndex, y, z, newPieces[z * m_Layers + y]);
+                    Set({ layerIndex, y, z }, newPieces[z * m_Layers + y]);
 
             break;
         }
@@ -490,7 +463,7 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
             for (uint32_t y = 0; y < m_Layers; y++)
                 for (uint32_t x = 0; x < m_Layers; x++)
                 {
-                    auto piece = Get(x, y, layerIndex);
+                    auto piece = Get({ x, y, layerIndex });
                     if (!piece.has_value())
                         continue;
 
@@ -504,15 +477,15 @@ auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) ->
                 for (uint32_t x = 0; x < m_Layers; x++)
                 {
                     if (clockwise)
-                        newPieces.push_back(Get(m_Layers - 1 - y, x, layerIndex).value().get());
+                        newPieces.push_back(Get({ m_Layers - 1 - y, x, layerIndex }).value().get());
                     else
-                        newPieces.push_back(Get(y, m_Layers - 1 - x, layerIndex).value().get());
+                        newPieces.push_back(Get({ y, m_Layers - 1 - x, layerIndex }).value().get());
                 }
             
             // set the new pieces to their new slots
             for (uint32_t y = 0; y < m_Layers; y++)
                 for (uint32_t x = 0; x < m_Layers; x++)
-                    Set(x, y, layerIndex, newPieces[y * m_Layers + x]);
+                    Set({ x, y, layerIndex }, newPieces[y * m_Layers + x]);
 
             break;
         }

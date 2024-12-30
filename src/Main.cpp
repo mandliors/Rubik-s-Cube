@@ -25,8 +25,6 @@ int main()
 
     CubeSolver solver(cube);
 
-    cube.MakeMoves("z2 R U R' U'");
-
     while (!WindowShouldClose())
     {
         if (IsKeyPressed(KEY_SPACE))
