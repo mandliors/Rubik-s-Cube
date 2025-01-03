@@ -94,6 +94,13 @@ public:
         );
     }
 
+    inline auto SetAnimationsEnabled(bool animations) -> void { m_Animations = animations; }
+    inline auto GetAnimationsEnabled() const -> bool { return m_Animations; }
+
+    inline auto SetAnimationSpeed(float speed) -> void { m_AnimationSpeed = speed; }
+    inline auto GetAnimationSpeed() const -> float { return m_AnimationSpeed; }
+
+    auto Reset() -> void;
     auto Update(float deltaTime) -> void;
     auto Draw() const -> void;
 
@@ -101,7 +108,6 @@ public:
 
 private:
     static constexpr float STICKER_SCALE = 0.9f;
-    static constexpr float ROTATION_SPEED = 10.0f;
 
 private:
     inline auto _GetPiece(const PieceLocation& location) -> std::optional<std::reference_wrapper<Piece>>
@@ -141,6 +147,11 @@ private:
 
 private:
     uint32_t m_Layers;
+    Vector3 m_Position;
+    float m_Size;
+    
+    bool m_Animations;
+    float m_AnimationSpeed;
 
     std::vector<PieceColors> m_CurrentPieceColors;
     std::vector<Piece> m_Pieces;

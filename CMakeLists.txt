@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Piece/PieceColors.cpp
     src/Cube/Cube.cpp
     src/CubeSolver/CubeSolver.cpp
+    src/ColorPattern/ColorPattern.cpp
 )
 include_directories(${PROJECT_NAME} PRIVATE
     src

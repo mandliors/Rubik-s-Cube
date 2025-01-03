@@ -27,6 +27,17 @@ int main()
 
     while (!WindowShouldClose())
     {
+        if (IsKeyPressed(KEY_BACKSPACE))
+        {
+            cube.Reset();
+            cube.Rotate(0.4f, -0.2f, 0.0f);
+        }
+        if (IsKeyPressed(KEY_TAB))
+            cube.SetAnimationsEnabled(!cube.GetAnimationsEnabled());
+        if (IsKeyPressed(KEY_UP))
+            cube.SetAnimationSpeed(cube.GetAnimationSpeed() / 0.9f);
+        if (IsKeyPressed(KEY_DOWN))
+            cube.SetAnimationSpeed(cube.GetAnimationSpeed() * 0.9f);
         if (IsKeyPressed(KEY_SPACE))
             cube.Scramble();
         if (IsKeyPressed(KEY_ENTER))
@@ -81,6 +92,10 @@ auto CheckMoves(Cube& cube) -> void
             cube.MakeMove(Move::D_);
         if (IsKeyPressed(KEY_M))
             cube.MakeMove(Move::M_);
+        if (IsKeyPressed(KEY_E))
+            cube.MakeMove(Move::E_);
+        if (IsKeyPressed(KEY_S))
+            cube.MakeMove(Move::S_);
     }
     else
     {
@@ -98,5 +113,9 @@ auto CheckMoves(Cube& cube) -> void
             cube.MakeMove(Move::D);
         if (IsKeyPressed(KEY_M))
             cube.MakeMove(Move::M);
+        if (IsKeyPressed(KEY_E))
+            cube.MakeMove(Move::E);
+        if (IsKeyPressed(KEY_S))
+            cube.MakeMove(Move::S);
     }
 }

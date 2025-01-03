@@ -4,80 +4,9 @@
 #include <rlgl.h>
 
 Cube::Cube(uint32_t layers, const Vector3& position, float size)
-    : m_Layers(layers)
+    : m_Layers(layers), m_Position(position), m_Size(size), m_Animations(true), m_AnimationSpeed(10.0f)
 {
-    float pieceSize = size / layers;
-    Vector3 cornerPosition = position - Vector3 { 
-        size * 0.5f - pieceSize * 0.5f, 
-        size * 0.5f - pieceSize * 0.5f,
-        size * 0.5f - pieceSize * 0.5f
-    };
-
-    // create the pieces
-    m_Pieces.reserve(layers * layers * layers);
-    for (uint32_t z = 0; z < layers; z++)
-        for (uint32_t y = 0; y < layers; y++)
-            for (uint32_t x = 0; x < layers; x++)
-            {
-                m_Pieces.emplace_back(
-                    cornerPosition + Vector3(x, y, z) * pieceSize, 
-                    pieceSize * STICKER_SCALE
-                );
-                m_CurrentPieceColors.emplace_back(std::array<FaceColor, 6>{
-                    FaceColor::None, 
-                    FaceColor::None, 
-                    FaceColor::None,
-                    FaceColor::None,
-                    FaceColor::None,
-                    FaceColor::None
-                });
-            }
-
-    // set the face colors of the pieces
-    for (uint32_t z = 0; z < layers; z++)
-    {
-        for (uint32_t y = 0; y < layers; y++)
-        {
-            for (uint32_t x = 0; x < layers; x++)
-            {
-                PieceColors& pieceColors = GetPieceColors({ x, y, z }).value().get();
-                Piece& piece = _GetPiece({ x, y, z }).value().get();
-                if (x == 0)
-                {
-                    pieceColors[Face::Left] = FaceColor::Orange;
-                    piece.SetFaceColor(Face::Left, FaceColor::Orange);
-                }
-                if (x == layers - 1)
-                {
-                    pieceColors[Face::Right] = FaceColor::Red;
-                    piece.SetFaceColor(Face::Right, FaceColor::Red);
-                }
-                if (y == 0)
-                {
-                    pieceColors[Face::Bottom] = FaceColor::Yellow;
-                    piece.SetFaceColor(Face::Bottom, FaceColor::Yellow);
-                }
-                if (y == layers - 1)
-                {
-                    pieceColors[Face::Top] = FaceColor::White;
-                    piece.SetFaceColor(Face::Top, FaceColor::White);
-                }
-                if (z == 0)
-                {
-                    pieceColors[Face::Back] = FaceColor::Blue;
-                    piece.SetFaceColor(Face::Back, FaceColor::Blue);
-                }
-                if (z == layers - 1)
-                {
-                    pieceColors[Face::Front] = FaceColor::Green;
-                    piece.SetFaceColor(Face::Front, FaceColor::Green);
-                }
-            }
-        }
-    }
-
-    // initialize the rotation matrix
-    m_RotationMatrix = MatrixIdentity();
+    Reset();
 }
 
 auto Cube::MakeMove(Move move) -> void
@@ -404,15 +333,104 @@ auto Cube::IsSolved() const -> bool
     return true;
 }
 
+auto Cube::Reset() -> void
+{
+    // empty the move queue
+    while (!m_Rotations.empty())
+        m_Rotations.pop();
+
+    // calculate helper variables
+    float pieceSize = m_Size / static_cast<float>(m_Layers);
+    Vector3 cornerPosition = m_Position - Vector3 { 
+        m_Size * 0.5f - pieceSize * 0.5f, 
+        m_Size * 0.5f - pieceSize * 0.5f,
+        m_Size * 0.5f - pieceSize * 0.5f
+    };
+
+    // create the pieces and the piece colors
+    m_Pieces.clear();
+    m_Pieces.reserve(m_Layers * m_Layers * m_Layers);
+    m_CurrentPieceColors.clear();
+    m_CurrentPieceColors.reserve(m_Layers * m_Layers * m_Layers);
+    for (uint32_t z = 0; z < m_Layers; z++)
+    {
+        for (uint32_t y = 0; y < m_Layers; y++)
+        {
+            for (uint32_t x = 0; x < m_Layers; x++)
+            {
+                m_Pieces.emplace_back(
+                    cornerPosition + Vector3(x, y, z) * pieceSize, 
+                    pieceSize * STICKER_SCALE
+                );
+                m_CurrentPieceColors.emplace_back(std::array<FaceColor, 6>{
+                    FaceColor::None, 
+                    FaceColor::None, 
+                    FaceColor::None,
+                    FaceColor::None,
+                    FaceColor::None,
+                    FaceColor::None
+                });
+            }
+        }
+    }
+
+    // set the face colors of the pieces
+    for (uint32_t z = 0; z < m_Layers; z++)
+    {
+        for (uint32_t y = 0; y < m_Layers; y++)
+        {
+            for (uint32_t x = 0; x < m_Layers; x++)
+            {
+                PieceColors& pieceColors = GetPieceColors({ x, y, z }).value().get();
+                Piece& piece = _GetPiece({ x, y, z }).value().get();
+                if (x == 0)
+                {
+                    pieceColors[Face::Left] = FaceColor::Orange;
+                    piece.SetFaceColor(Face::Left, FaceColor::Orange);
+                }
+                if (x == m_Layers - 1)
+                {
+                    pieceColors[Face::Right] = FaceColor::Red;
+                    piece.SetFaceColor(Face::Right, FaceColor::Red);
+                }
+                if (y == 0)
+                {
+                    pieceColors[Face::Bottom] = FaceColor::Yellow;
+                    piece.SetFaceColor(Face::Bottom, FaceColor::Yellow);
+                }
+                if (y == m_Layers - 1)
+                {
+                    pieceColors[Face::Top] = FaceColor::White;
+                    piece.SetFaceColor(Face::Top, FaceColor::White);
+                }
+                if (z == 0)
+                {
+                    pieceColors[Face::Back] = FaceColor::Blue;
+                    piece.SetFaceColor(Face::Back, FaceColor::Blue);
+                }
+                if (z == m_Layers - 1)
+                {
+                    pieceColors[Face::Front] = FaceColor::Green;
+                    piece.SetFaceColor(Face::Front, FaceColor::Green);
+                }
+            }
+        }
+    }
+
+    // initialize the rotation matrix
+    m_RotationMatrix = MatrixIdentity();
+}
+
 auto Cube::Update(float deltaTime) -> void
 {
     if (m_Rotations.empty())
         return;
 
-    // if the rotation is done
+    // update the rotation (if animations are disabled, the whole rotation happens immadiately)
     AxialRotation& rotation = m_Rotations.front();
     auto indices = _GetIndicesByTurn(rotation.GetTurn());
-    if (rotation.Update(ROTATION_SPEED * deltaTime, _GetPiecesByIndices(indices)))
+    float rotationAngle = m_Animations ? m_AnimationSpeed * deltaTime : PI;
+    if (rotation.Update(rotationAngle, _GetPiecesByIndices(indices)))
     {
         auto newPieces = _GetPieceClonesByIndices(_GetIndicesByTurnInversed(rotation.GetTurn()));
         _SetPiecesByIndices(indices, newPieces);

@@ -1,6 +1,65 @@
 #include "CubeSolver.hpp"
+#include "ColorPattern/ColorPattern.hpp"
 
 #include <utility>
+
+const std::array<Algorithm, 7> CubeSolver::s_2x2_OLLs = {
+    Algorithm {
+        .Pattern = ColorPattern { "NYNYNNNY" },
+        .Moves = "L' U2 L U L' U L"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "YNYNNNYN" },
+        .Moves = "R U2 R' U' R U' R'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "YNNNNYNN" },
+        .Moves = "R U R' U' R' F R F'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "YYNNYYNN" },
+        .Moves = "R2 U2 R U2 R2"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "NYNNYNYY" },
+        .Moves = "F R U R' U' R U R' U' F'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "NYNNNNYN" },
+        .Moves = "F' R U R' U' R' F R"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "NNNNNNYY" },
+        .Moves = "F R U R' U' F'"
+    }
+};
+
+const std::array<Algorithm, 6> CubeSolver::s_2x2_PLLs = {
+    Algorithm {
+        .Pattern = ColorPattern { "GBROBGOR" },
+        .Moves = "F R U' R' U' R U R' F' R U R' U' R' F R F'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "GOBGOBRR" },
+        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "OBROBRGG" },
+        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F' U'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "BRGBRGOO" },
+        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F' U2"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "RGORGOBB" },
+        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F' U"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "GGOOBBRR" },
+        .Moves = ""
+    }
+};
 
 CubeSolver::CubeSolver(Cube& cube)
     : m_Cube(cube) { }
@@ -26,6 +85,10 @@ auto CubeSolver::_Solve2x2() -> void
     _SolveCorner(FaceColor::White, FaceColor::Orange, FaceColor::Green, { lastLayerIndex, 0, lastLayerIndex }, FaceColor::White);
     _SolveCorner(FaceColor::White, FaceColor::Orange, FaceColor::Blue, { lastLayerIndex, 0, 0 }, FaceColor::White);
     _SolveCorner(FaceColor::White, FaceColor::Red, FaceColor::Blue, { 0, 0, 0 }, FaceColor::White);
+
+    _SolveOLL(s_2x2_OLLs, FaceColor::Yellow);
+
+    _SolvePLL(s_2x2_PLLs);
 }
 auto CubeSolver::_Solve3x3() -> void
 {
@@ -52,31 +115,65 @@ auto CubeSolver::_SolveCorner(FaceColor color1, FaceColor color2, FaceColor colo
     // insert the corner to the destination (right below the current position)
     _InsertCornerToBottom({ destLocation.X, m_Cube.GetSize() - 1, destLocation.Z }, bottomColor);
 }
+auto CubeSolver::_SolveOLL(std::span<const Algorithm> OLLs, FaceColor faceColor) -> void
+{
+    ColorPattern OLLPattern = ColorPattern::CreateFromTopLayerWithBaseColor(m_Cube, faceColor);
+    for (const auto& OLL : OLLs)
+    {
+        uint32_t match = OLLPattern.Match(OLL.Pattern);
+        if (match != 5)
+        {
+            // align the OLL pattern
+            for (uint32_t i = 0; i < match; i++)
+                m_Cube.MakeMove(Move::U_);
+
+            m_Cube.MakeMoves(OLL.Moves);
+            break;
+        }
+    }
+}
+auto CubeSolver::_SolvePLL(std::span<const Algorithm> PLLs) -> void
+{
+    ColorPattern PLLPattern = ColorPattern::CreateFromTopLayer(m_Cube);
+    for (const auto& PLL : PLLs)
+    {
+        uint32_t match = PLLPattern.Match(PLL.Pattern);
+        if (match != 5)
+        {
+            // align the OLL pattern
+            for (uint32_t i = 0; i < match; i++)
+                m_Cube.MakeMove(Move::U_);
+
+            m_Cube.MakeMoves(PLL.Moves);
+            break;
+        }
+    }
+}
 
 auto CubeSolver::_MoveCornerToTop(PieceLocation location) -> PieceLocation
 {
     // bottom left back
     if (location.X == 0 && location.Z == 0)
     {
-        m_Cube.MakeMoves(Move::L, Move::U, Move::L_);
+        m_Cube.MakeMoves("L U L'");
         return { m_Cube.GetSize() - 1, m_Cube.GetSize() - 1, 0 };
     }
     // bottom right back
     if (location.X == m_Cube.GetSize() - 1 && location.Z == 0)
     {
-        m_Cube.MakeMoves(Move::R_, Move::U_, Move::R);
+        m_Cube.MakeMoves("R' U' R");
         return { 0, m_Cube.GetSize() - 1, 0 };
     }
     // bottom right front
     if (location.X == m_Cube.GetSize() - 1 && location.Z == m_Cube.GetSize() - 1)
     {
-        m_Cube.MakeMoves(Move::R, Move::U, Move::R_);
+        m_Cube.MakeMoves("R U R'");
         return { 0, m_Cube.GetSize() - 1, m_Cube.GetSize() - 1 };
     }
     // bottom left front
     if (location.X == 0 && location.Z == m_Cube.GetSize() - 1)
     {
-        m_Cube.MakeMoves(Move::L_, Move::U_, Move::L);
+        m_Cube.MakeMoves("L' U' L");
         return { m_Cube.GetSize() - 1, m_Cube.GetSize() - 1, m_Cube.GetSize() - 1 };
     }
 
@@ -123,13 +220,13 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
         switch (bottomColorFace)
         {
         case Face::Back:
-            m_Cube.MakeMoves(Move::B_, Move::U_, Move::B);
+            m_Cube.MakeMoves("B' U' B");
             return;
         case Face::Left:
-            m_Cube.MakeMoves(Move::L, Move::U, Move::L_);
+            m_Cube.MakeMoves("L U L'");
             return;
         case Face::Top:
-            m_Cube.MakeMoves(Move::L, Move::U2, Move::L_, Move::U_, Move::L, Move::U, Move::L_);        
+            m_Cube.MakeMoves("L U2 L' U' L U L'");        
             return;
         
         default:
@@ -142,13 +239,13 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
         switch (bottomColorFace)
         {
         case Face::Back:
-            m_Cube.MakeMoves(Move::B, Move::U, Move::B_);
+            m_Cube.MakeMoves("B U B'");
             return;
         case Face::Right:
-            m_Cube.MakeMoves(Move::R_, Move::U_, Move::R);
+            m_Cube.MakeMoves("R' U' R");
             return;
         case Face::Top:
-            m_Cube.MakeMoves(Move::R_, Move::U2, Move::R, Move::U, Move::R_, Move::U_, Move::R);        
+            m_Cube.MakeMoves("R' U2 R U R' U' R");        
             return;
         
         default:
@@ -161,13 +258,13 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
         switch (bottomColorFace)
         {
         case Face::Front:
-            m_Cube.MakeMoves(Move::F_, Move::U_, Move::F);
+            m_Cube.MakeMoves("F' U' F");
             return;
         case Face::Right:
-            m_Cube.MakeMoves(Move::R, Move::U, Move::R_);
+            m_Cube.MakeMoves("R U R'");
             return;
         case Face::Top:
-            m_Cube.MakeMoves(Move::R, Move::U2, Move::R_, Move::U_, Move::R, Move::U, Move::R_);        
+            m_Cube.MakeMoves("R U2 R' U' R U R'");        
             return;
         
         default:
@@ -180,13 +277,13 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
         switch (bottomColorFace)
         {
         case Face::Front:
-            m_Cube.MakeMoves(Move::F, Move::U, Move::F_);
+            m_Cube.MakeMoves("F U F'");
             return;
         case Face::Left:
-            m_Cube.MakeMoves(Move::L_, Move::U_, Move::L);
+            m_Cube.MakeMoves("L' U' L");
             return;
         case Face::Top:
-            m_Cube.MakeMoves(Move::L_, Move::U2, Move::L, Move::U, Move::L_, Move::U_, Move::L);        
+            m_Cube.MakeMoves("L' U2 L U L' U' L");        
             return;
         
         default:
