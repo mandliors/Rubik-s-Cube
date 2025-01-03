@@ -6,7 +6,7 @@
 class CubeSolver
 {
 public:
-    CubeSolver(Cube& cube);
+    explicit CubeSolver(Cube& cube);
 
     auto Solve() -> void;
 

@@ -3,8 +3,8 @@
 
 #include "Face/Face.hpp"
 #include "Face/FaceColor.hpp"
+#include "Piece/PieceColors.hpp"
 #include "Direction/Direction.hpp"
-#include "Rotation/Rotation.hpp"
 
 #include <raylib.h>
 #include <raymath.h>
@@ -30,44 +30,17 @@ public:
 public:
     Piece(const Vector3& position, float size);
 
-    inline auto SetFaceColor(Face face, FaceColor color, bool startingFaceToo = false) -> void
-    {
-        m_CurrentFaceColors[(int)face] = color;
-        if (startingFaceToo)
-            m_StartingFaceColors[(int)face] = color;
-    }
-    
-    inline auto GetFaceByColor(FaceColor color, bool current = true) const -> Face
-    {
-        for (uint32_t i = 0; i < m_StartingFaceColors.size(); i++)
-        {
-            if (current && m_CurrentFaceColors[i] == color)
-                return (Face)i;
-            else if (!current && m_StartingFaceColors[i] == color)
-                return (Face)i;
-        }
+    inline auto SetFaceColor(Face face, FaceColor color) -> void { m_Colors[face] = color; }
 
-        return Face::None;
-    }
-    inline auto GetFaceColor(Face face) const -> FaceColor { return m_CurrentFaceColors[(int)face]; }
-
-    auto Rotate(Direction direction, bool clockwise) -> void;
-    auto UpdateRotation(float rotation) -> void;
-    auto Draw(bool drawBlackFaces = false) const -> void;
+    auto SetRotation(Vector3 rotation, bool isDone) -> void;
+    auto Draw(bool drawBlackFaces = true) const -> void;
 
 private:
-    static std::array<std::array<std::array<Face, 2>, 3>, 6> faceTransitionTensor;
-
-private:
-    float m_Size;
-
     std::array<Vector3, 8> m_Vertices;
-    std::array<FaceColor, 6> m_StartingFaceColors;
-    std::array<FaceColor, 6> m_CurrentFaceColors;
-    
-    bool m_Rotating;
-    Rotation m_Rotation;
+    PieceColors m_Colors;
 
+    bool m_Rotating;
+    Vector3 m_CurrentRotation;
     Matrix m_RotationMatrix;
 };
 

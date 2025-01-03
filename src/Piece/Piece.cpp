@@ -5,201 +5,152 @@
 
 #include <array>
 
-std::array<std::array<std::array<Face, 2>, 3>, 6> Piece::faceTransitionTensor = {{
-    //   [Clockwise], [Counterclockwise]    
-    // top
-    { { { Face::Top,   Face::Top     },     // horizontal
-        { Face::Back,  Face::Front   },     // vertical
-        { Face::Right, Face::Left    } } }, // depthical
-    // front
-    { { { Face::Left,  Face::Right   },     // horizontal
-        { Face::Top,   Face::Bottom  },     // vertical
-        { Face::Front, Face::Front   } } }, // depthical
-    // right
-    { { { Face::Front, Face::Back    },     // horizontal
-        { Face::Right, Face::Right   },     // vertical
-        { Face::Bottom, Face::Top    } } }, // depthical
-    // back
-    { { { Face::Right,  Face::Left   },     // horizontal
-        { Face::Bottom, Face::Top    },     // vertical
-        { Face::Back,   Face::Back   } } }, // depthical
-    // left
-    { { { Face::Back, Face::Front    },     // horizontal
-        { Face::Left, Face::Left     },     // vertical
-        { Face::Top,  Face::Bottom   } } }, // depthical
-    // bottom
-    { { { Face::Bottom, Face::Bottom },     // horizontal
-        { Face::Front,  Face::Back   },     // vertical
-        { Face::Left,   Face::Right  } } }  // depthical
-}};
-
-
 Piece::Piece(const Vector3& position, float size)
-    : m_Size(size)
 {
-    const float halfSize = 0.5 * size;
+    const float halfSize = 0.5f * size;
 
-    m_Vertices[static_cast<int>(PieceVertex::LBB)] = position + Vector3 { -halfSize, -halfSize, -halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::RBB)] = position + Vector3 { +halfSize, -halfSize, -halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::RTB)] = position + Vector3 { +halfSize, +halfSize, -halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::LTB)] = position + Vector3 { -halfSize, +halfSize, -halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::LBF)] = position + Vector3 { -halfSize, -halfSize, +halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::RBF)] = position + Vector3 { +halfSize, -halfSize, +halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::RTF)] = position + Vector3 { +halfSize, +halfSize, +halfSize };
-    m_Vertices[static_cast<int>(PieceVertex::LTF)] = position + Vector3 { -halfSize, +halfSize, +halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::LBB)] = position + Vector3 { -halfSize, -halfSize, -halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::RBB)] = position + Vector3 { +halfSize, -halfSize, -halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::RTB)] = position + Vector3 { +halfSize, +halfSize, -halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::LTB)] = position + Vector3 { -halfSize, +halfSize, -halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::LBF)] = position + Vector3 { -halfSize, -halfSize, +halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::RBF)] = position + Vector3 { +halfSize, -halfSize, +halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::RTF)] = position + Vector3 { +halfSize, +halfSize, +halfSize };
+    m_Vertices[std::to_underlying(PieceVertex::LTF)] = position + Vector3 { -halfSize, +halfSize, +halfSize };
 
-    m_StartingFaceColors[static_cast<int>(Face::Top)]    = m_CurrentFaceColors[static_cast<int>(Face::Top)]    = FaceColor::NONE;
-    m_StartingFaceColors[static_cast<int>(Face::Front)]  = m_CurrentFaceColors[static_cast<int>(Face::Front)]  = FaceColor::NONE;
-    m_StartingFaceColors[static_cast<int>(Face::Right)]  = m_CurrentFaceColors[static_cast<int>(Face::Right)]  = FaceColor::NONE;
-    m_StartingFaceColors[static_cast<int>(Face::Back)]   = m_CurrentFaceColors[static_cast<int>(Face::Back)]   = FaceColor::NONE;
-    m_StartingFaceColors[static_cast<int>(Face::Left)]   = m_CurrentFaceColors[static_cast<int>(Face::Left)]   = FaceColor::NONE;
-    m_StartingFaceColors[static_cast<int>(Face::Bottom)] = m_CurrentFaceColors[static_cast<int>(Face::Bottom)] = FaceColor::NONE;
+    m_Colors[Face::Top]    = FaceColor::None;
+    m_Colors[Face::Front]  = FaceColor::None;
+    m_Colors[Face::Right]  = FaceColor::None;
+    m_Colors[Face::Back]   = FaceColor::None;
+    m_Colors[Face::Left]   = FaceColor::None;
+    m_Colors[Face::Bottom] = FaceColor::None;
 
     m_Rotating = false;
     m_RotationMatrix = MatrixIdentity();
 }
 
-auto Piece::Rotate(Direction direction, bool clockwise) -> void
+auto Piece::SetRotation(Vector3 rotation, bool isDone) -> void
 {
-    // set the rotation
-    m_Rotation = Rotation { direction, clockwise };
-    m_Rotating = true;
-
-    // rotate the face colors
-    std::array<FaceColor, 6> newFaceColors;
-    for (int i = 0; i < 6; i++)
+    m_Rotating = !isDone;
+    m_CurrentRotation = rotation;
+    
+    if (isDone)
     {
-        Face face = faceTransitionTensor[i][static_cast<int>(direction)][clockwise ? 0 : 1];
-        newFaceColors[static_cast<int>(face)] = m_CurrentFaceColors[i];
-    }
-    m_CurrentFaceColors = newFaceColors;
-}
-
-auto Piece::UpdateRotation(float rotation) -> void
-{
-    if (m_Rotating == false)
-        return;
-
-    if (m_Rotation.Update(rotation))
-    {
-        m_Rotating = false;
         m_RotationMatrix = MatrixMultiply(
             m_RotationMatrix,
-            MatrixRotateXYZ(m_Rotation.GetRotationVector())
+            MatrixRotateXYZ(m_CurrentRotation)
         );
     }
 }
-
 auto Piece::Draw(bool drawBlackFaces) const -> void
 {
-    // calculate the rotated vertices
     std::array<Vector3, 8> m_TransformedVertices;
     for (int i = 0; i < 8; i++)
     {
         m_TransformedVertices[i] = Vector3Transform(m_Vertices[i], m_RotationMatrix);
         if (m_Rotating)
-            m_TransformedVertices[i] = Vector3Transform(m_TransformedVertices[i], MatrixRotateXYZ(m_Rotation.GetRotationVector()));
+            m_TransformedVertices[i] = Vector3Transform(m_TransformedVertices[i], MatrixRotateXYZ(m_CurrentRotation));
     }
 
     // top face
-    if (drawBlackFaces || m_StartingFaceColors[static_cast<int>(Face::Top)] != FaceColor::NONE) 
+    if (drawBlackFaces || m_Colors[Face::Top] != FaceColor::None) 
     {
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Top)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTB)],
+            FaceColors[std::to_underlying(m_Colors[Face::Top])]
         );
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Top)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTB)],
+            FaceColors[std::to_underlying(m_Colors[Face::Top])]
         );
     }
 
     // front face
-    if (drawBlackFaces || m_StartingFaceColors[static_cast<int>(Face::Front)] != FaceColor::NONE) 
+    if (drawBlackFaces || m_Colors[Face::Front] != FaceColor::None) 
     {
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Front)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTF)],
+            FaceColors[std::to_underlying(m_Colors[Face::Front])]
         );
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Front)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTF)],
+            FaceColors[std::to_underlying(m_Colors[Face::Front])]
         );
     }
 
     // right face
-    if (drawBlackFaces || m_StartingFaceColors[static_cast<int>(Face::Right)] != FaceColor::NONE) 
+    if (drawBlackFaces || m_Colors[Face::Right] != FaceColor::None) 
     {
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Right)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTB)],
+            FaceColors[std::to_underlying(m_Colors[Face::Right])]
         );
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTF)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Right)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTF)],
+            FaceColors[std::to_underlying(m_Colors[Face::Right])]
         );
     }
 
     // back face
-    if (drawBlackFaces || m_StartingFaceColors[(int)Face::Back] != FaceColor::NONE) 
+    if (drawBlackFaces || m_Colors[Face::Back] != FaceColor::None) 
     {
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Back)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTB)],
+            FaceColors[std::to_underlying(m_Colors[Face::Back])]
         );
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RTB)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Back)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RTB)],
+            FaceColors[std::to_underlying(m_Colors[Face::Back])]
         );
     }
 
     // left face
-    if (drawBlackFaces || m_StartingFaceColors[(int)Face::Left] != FaceColor::NONE) 
+    if (drawBlackFaces || m_Colors[Face::Left] != FaceColor::None) 
     {
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Left)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTF)],
+            FaceColors[std::to_underlying(m_Colors[Face::Left])]
         );
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LTB)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Left)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LTB)],
+            FaceColors[std::to_underlying(m_Colors[Face::Left])]
         );
     }
 
     // bottom face
-    if (drawBlackFaces || m_StartingFaceColors[(int)Face::Bottom] != FaceColor::NONE) 
+    if (drawBlackFaces || m_Colors[Face::Bottom] != FaceColor::None) 
     {
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Bottom)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBF)],
+            FaceColors[std::to_underlying(m_Colors[Face::Bottom])]
         );
         DrawTriangle3D(
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBB)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::RBF)],
-            m_TransformedVertices[static_cast<int>(PieceVertex::LBF)],
-            FaceColors[static_cast<int>(m_StartingFaceColors[static_cast<int>(Face::Bottom)])]
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBB)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::RBF)],
+            m_TransformedVertices[std::to_underlying(PieceVertex::LBF)],
+            FaceColors[std::to_underlying(m_Colors[Face::Bottom])]
         );
     }
 }

@@ -39,7 +39,7 @@ auto CubeSolver::_SolveCorner(FaceColor color1, FaceColor color2, FaceColor colo
     PieceLocation cornerLocation = m_Cube.GetPieceLocationByColors(color1, color2, color3).value();
     
     // already solved
-    if (cornerLocation == destLocation && m_Cube.Get(destLocation).value().get().GetFaceColor(Face::Bottom) == bottomColor)
+    if (cornerLocation == destLocation && m_Cube.GetPieceColors(destLocation).value().get()[Face::Bottom] == bottomColor)
         return;
 
     // if on the bottom layer
@@ -111,14 +111,15 @@ auto CubeSolver::_MoveCornerOnTopToPosition(PieceLocation location, uint32_t des
 }
 auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomColor) -> void
 {
+    // get the bottomColor colored face
+    Face bottomColorFace = m_Cube
+        .GetPieceColors({ location.X, location.Y, location.Z })
+        .value().get()
+        .GetFaceByColor(bottomColor);
+
     // top left back
     if (location.X == 0 && location.Z == 0)
     {
-        Face bottomColorFace = m_Cube
-            .Get({ location.X, location.Y, location.Z })
-            .value().get()
-            .GetFaceByColor(bottomColor);
-        
         switch (bottomColorFace)
         {
         case Face::Back:
@@ -138,11 +139,6 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
     // top right back
     if (location.X != 0 && location.Z == 0)
     {
-        Face bottomColorFace = m_Cube
-            .Get({ location.X, location.Y, location.Z })
-            .value().get()
-            .GetFaceByColor(bottomColor);
-        
         switch (bottomColorFace)
         {
         case Face::Back:
@@ -161,12 +157,7 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
     }
     // top right front
     if (location.X != 0 && location.Z != 0)
-    {
-        Face bottomColorFace = m_Cube
-            .Get({ location.X, location.Y, location.Z })
-            .value().get()
-            .GetFaceByColor(bottomColor);
-        
+    {        
         switch (bottomColorFace)
         {
         case Face::Front:
@@ -185,12 +176,7 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
     }
     // top left front
     if (location.X == 0 && location.Z != 0)
-    {
-        Face bottomColorFace = m_Cube
-            .Get({ location.X, location.Y, location.Z })
-            .value().get()
-            .GetFaceByColor(bottomColor);
-        
+    {       
         switch (bottomColorFace)
         {
         case Face::Front:

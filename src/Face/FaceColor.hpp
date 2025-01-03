@@ -13,7 +13,7 @@ enum class FaceColor
     Blue,
     Red,
     Orange,
-    NONE
+    None
 };
 
 static std::array<Color, 7> FaceColors = {

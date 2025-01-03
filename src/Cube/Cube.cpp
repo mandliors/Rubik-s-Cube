@@ -4,13 +4,13 @@
 #include <rlgl.h>
 
 Cube::Cube(uint32_t layers, const Vector3& position, float size)
-    : m_Layers(layers), m_Position(position), m_Size(size)
+    : m_Layers(layers)
 {
     float pieceSize = size / layers;
     Vector3 cornerPosition = position - Vector3 { 
-        size / 2 - pieceSize / 2, 
-        size / 2 - pieceSize / 2,
-        size / 2 - pieceSize / 2
+        size * 0.5f - pieceSize * 0.5f, 
+        size * 0.5f - pieceSize * 0.5f,
+        size * 0.5f - pieceSize * 0.5f
     };
 
     // create the pieces
@@ -23,27 +23,58 @@ Cube::Cube(uint32_t layers, const Vector3& position, float size)
                     cornerPosition + Vector3(x, y, z) * pieceSize, 
                     pieceSize * STICKER_SCALE
                 );
+                m_CurrentPieceColors.emplace_back(std::array<FaceColor, 6>{
+                    FaceColor::None, 
+                    FaceColor::None, 
+                    FaceColor::None,
+                    FaceColor::None,
+                    FaceColor::None,
+                    FaceColor::None
+                });
             }
 
     // set the face colors of the pieces
     for (uint32_t z = 0; z < layers; z++)
+    {
         for (uint32_t y = 0; y < layers; y++)
+        {
             for (uint32_t x = 0; x < layers; x++)
             {
-                Piece& piece = Get({ x, y, z }).value().get();
+                PieceColors& pieceColors = GetPieceColors({ x, y, z }).value().get();
+                Piece& piece = _GetPiece({ x, y, z }).value().get();
                 if (x == 0)
-                    piece.SetFaceColor(Face::Left, FaceColor::Orange, true);
+                {
+                    pieceColors[Face::Left] = FaceColor::Orange;
+                    piece.SetFaceColor(Face::Left, FaceColor::Orange);
+                }
                 if (x == layers - 1)
-                    piece.SetFaceColor(Face::Right, FaceColor::Red, true);
+                {
+                    pieceColors[Face::Right] = FaceColor::Red;
+                    piece.SetFaceColor(Face::Right, FaceColor::Red);
+                }
                 if (y == 0)
-                    piece.SetFaceColor(Face::Bottom, FaceColor::Yellow, true);
+                {
+                    pieceColors[Face::Bottom] = FaceColor::Yellow;
+                    piece.SetFaceColor(Face::Bottom, FaceColor::Yellow);
+                }
                 if (y == layers - 1)
-                    piece.SetFaceColor(Face::Top, FaceColor::White, true);
+                {
+                    pieceColors[Face::Top] = FaceColor::White;
+                    piece.SetFaceColor(Face::Top, FaceColor::White);
+                }
                 if (z == 0)
-                    piece.SetFaceColor(Face::Back, FaceColor::Blue, true);
+                {
+                    pieceColors[Face::Back] = FaceColor::Blue;
+                    piece.SetFaceColor(Face::Back, FaceColor::Blue);
+                }
                 if (z == layers - 1)
-                    piece.SetFaceColor(Face::Front, FaceColor::Green, true);
+                {
+                    pieceColors[Face::Front] = FaceColor::Green;
+                    piece.SetFaceColor(Face::Front, FaceColor::Green);
+                }
             }
+        }
+    }
 
     // initialize the rotation matrix
     m_RotationMatrix = MatrixIdentity();
@@ -54,180 +85,180 @@ auto Cube::MakeMove(Move move) -> void
     switch (move)
     {
     case Move::U:
-        TurnSide(Direction::Horizontal, m_Layers - 1, true);
+        MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
         break;
     case Move::U2:
-        TurnSide(Direction::Horizontal, m_Layers - 1, true);
-        TurnSide(Direction::Horizontal, m_Layers - 1, true);
+        MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
+        MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
         break;
     case Move::U_:
-        TurnSide(Direction::Horizontal, m_Layers - 1, false);
+        MakeTurn({ Direction::Horizontal, m_Layers - 1, false });
         break;
     case Move::F:
-        TurnSide(Direction::Depthical, m_Layers - 1, true);
+        MakeTurn({ Direction::Depthical, m_Layers - 1, true });
         break;
     case Move::F2:
-        TurnSide(Direction::Depthical, m_Layers - 1, true);
-        TurnSide(Direction::Depthical, m_Layers - 1, true);
+        MakeTurn({ Direction::Depthical, m_Layers - 1, true });
+        MakeTurn({ Direction::Depthical, m_Layers - 1, true });
         break;
     case Move::F_:
-        TurnSide(Direction::Depthical, m_Layers - 1, false);
+        MakeTurn({ Direction::Depthical, m_Layers - 1, false });
         break;
     case Move::R:
-        TurnSide(Direction::Vertical, m_Layers - 1, true);
+        MakeTurn({ Direction::Vertical, m_Layers - 1, true });
         break;
     case Move::R2:
-        TurnSide(Direction::Vertical, m_Layers - 1, true);
-        TurnSide(Direction::Vertical, m_Layers - 1, true);
+        MakeTurn({ Direction::Vertical, m_Layers - 1, true });
+        MakeTurn({ Direction::Vertical, m_Layers - 1, true });
         break;
     case Move::R_:
-        TurnSide(Direction::Vertical, m_Layers - 1, false);
+        MakeTurn({ Direction::Vertical, m_Layers - 1, false });
         break;
     case Move::B:
-        TurnSide(Direction::Depthical, 0, false);
+        MakeTurn({ Direction::Depthical, 0, false });
         break;
     case Move::B2:
-        TurnSide(Direction::Depthical, 0, false);
-        TurnSide(Direction::Depthical, 0, false);
+        MakeTurn({ Direction::Depthical, 0, false });
+        MakeTurn({ Direction::Depthical, 0, false });
         break;
     case Move::B_:
-        TurnSide(Direction::Depthical, 0, true);
+        MakeTurn({ Direction::Depthical, 0, true });
         break;
     case Move::L:
-        TurnSide(Direction::Vertical, 0, false);
+        MakeTurn({ Direction::Vertical, 0, false });
         break;
     case Move::L2:
-        TurnSide(Direction::Vertical, 0, false);
-        TurnSide(Direction::Vertical, 0, false);
+        MakeTurn({ Direction::Vertical, 0, false });
+        MakeTurn({ Direction::Vertical, 0, false });
         break;
     case Move::L_:
-        TurnSide(Direction::Vertical, 0, true);
+        MakeTurn({ Direction::Vertical, 0, true });
         break;
     case Move::D:
-        TurnSide(Direction::Horizontal, 0, false);
+        MakeTurn({ Direction::Horizontal, 0, false });
         break;
     case Move::D2:
-        TurnSide(Direction::Horizontal, 0, false);
-        TurnSide(Direction::Horizontal, 0, false);
+        MakeTurn({ Direction::Horizontal, 0, false });
+        MakeTurn({ Direction::Horizontal, 0, false });
         break;
     case Move::D_:
-        TurnSide(Direction::Horizontal, 0, true);
+        MakeTurn({ Direction::Horizontal, 0, true });
         break;
     case Move::M:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Vertical, m_Layers / 2, false);
+        MakeTurn({ Direction::Vertical, m_Layers / 2, false });
         break;
     case Move::M2:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Vertical, m_Layers / 2, false);
-        TurnSide(Direction::Vertical, m_Layers / 2, false);
+        MakeTurn({ Direction::Vertical, m_Layers / 2, false });
+        MakeTurn({ Direction::Vertical, m_Layers / 2, false });
         break;
     case Move::M_:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Vertical, m_Layers / 2, true);
+        MakeTurn({ Direction::Vertical, m_Layers / 2, true });
         break;
     case Move::E:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Horizontal, m_Layers / 2, false);
+        MakeTurn({ Direction::Horizontal, m_Layers / 2, false });
         break;
     case Move::E2:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Horizontal, m_Layers / 2, false);
-        TurnSide(Direction::Horizontal, m_Layers / 2, false);
+        MakeTurn({ Direction::Horizontal, m_Layers / 2, false });
+        MakeTurn({ Direction::Horizontal, m_Layers / 2, false });
         break;
     case Move::E_:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Horizontal, m_Layers / 2, true);
+        MakeTurn({ Direction::Horizontal, m_Layers / 2, true });
         break;
     case Move::S:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Depthical, m_Layers / 2, true);
+        MakeTurn({ Direction::Depthical, m_Layers / 2, true });
         break;
     case Move::S2:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Depthical, m_Layers / 2, true);
-        TurnSide(Direction::Depthical, m_Layers / 2, true);
+        MakeTurn({ Direction::Depthical, m_Layers / 2, true });
+        MakeTurn({ Direction::Depthical, m_Layers / 2, true });
         break;
     case Move::S_:
         if (m_Layers % 2 == 0)
             return;
 
-        TurnSide(Direction::Depthical, m_Layers / 2, false);
+        MakeTurn({ Direction::Depthical, m_Layers / 2, false });
         break;
     case Move::x:
         for (uint32_t i = 0; i < m_Layers; i++)
-            TurnSide(Direction::Vertical, i, true);
+            MakeTurn({ Direction::Vertical, i, true });
 
         break;
     case Move::x2:
         for (uint32_t i = 0; i < m_Layers; i++)
         {
-            TurnSide(Direction::Vertical, i, true);
-            TurnSide(Direction::Vertical, i, true);
+            MakeTurn({ Direction::Vertical, i, true });
+            MakeTurn({ Direction::Vertical, i, true });
         }
         break;
     case Move::x_:
         for (uint32_t i = 0; i < m_Layers; i++)
-            TurnSide(Direction::Vertical, i, false);
+            MakeTurn({ Direction::Vertical, i, false });
 
         break;
     case Move::y:
         for (uint32_t i = 0; i < m_Layers; i++)
-            TurnSide(Direction::Horizontal, i, true);
+            MakeTurn({ Direction::Horizontal, i, true });
 
         break;
     case Move::y2:
         for (uint32_t i = 0; i < m_Layers; i++)
         {
-            TurnSide(Direction::Horizontal, i, true);
-            TurnSide(Direction::Horizontal, i, true);
+            MakeTurn({ Direction::Horizontal, i, true });
+            MakeTurn({ Direction::Horizontal, i, true });
         }
         break;
     case Move::y_:
         for (uint32_t i = 0; i < m_Layers; i++)
-            TurnSide(Direction::Horizontal, i, false);
+            MakeTurn({ Direction::Horizontal, i, false });
 
         break;
     case Move::z:
         for (uint32_t i = 0; i < m_Layers; i++)
-            TurnSide(Direction::Depthical, i, true);
+            MakeTurn({ Direction::Depthical, i, true });
 
         break;
     case Move::z2:
         for (uint32_t i = 0; i < m_Layers; i++)
         {
-            TurnSide(Direction::Depthical, i, true);
-            TurnSide(Direction::Depthical, i, true);
+            MakeTurn({ Direction::Depthical, i, true });
+            MakeTurn({ Direction::Depthical, i, true });
         }
         break;
     case Move::z_:
         for (uint32_t i = 0; i < m_Layers; i++)
-            TurnSide(Direction::Depthical, i, false);
+            MakeTurn({ Direction::Depthical, i, false });
 
         break;
     }
 }
 
-auto Cube::MakeMoves(const std::string& moveString) -> void
+auto Cube::MakeMoves(std::string_view moveString) -> void
 {
     // split the string by spaces
-    std::vector<std::string> moves;
+    std::vector<std::string_view> moves;
     size_t start = 0;
     size_t end = 0;
     while ((end = moveString.find(' ', start)) != std::string::npos)
@@ -318,56 +349,56 @@ auto Cube::MakeMoves(const std::string& moveString) -> void
 auto Cube::Scramble() -> void
 {
     for (uint32_t i = 0; i < static_cast<uint32_t>(sqrt(m_Layers) * 20); i++)
-        TurnSide(
-            static_cast<Direction>(GetRandomValue(0, 2)),
-            GetRandomValue(0, m_Layers - 1),
-            GetRandomValue(0, 1)
-        );
+        MakeTurn({
+            .LayerType = static_cast<Direction>(GetRandomValue(0, 2)),
+            .LayerIndex = static_cast<uint32_t>(GetRandomValue(0, m_Layers - 1)),
+            .Clockwise = static_cast<bool>(GetRandomValue(0, 1))
+        });
 }
 auto Cube::IsSolved() const -> bool
 {
     FaceColor color;
 
     // check the colors of the back face
-    color = Get({ 0, 0, 0 }).value().get().GetFaceColor(Face::Back);
+    color = GetPieceColors({ 0, 0, 0 }).value().get()[Face::Back];
     for (uint32_t y = 0; y < m_Layers; y++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get({ x, y, 0 }).value().get().GetFaceColor(Face::Back) != color)
+            if (GetPieceColors({ x, y, 0 }).value().get()[Face::Back] != color)
                 return false;
 
     // check the colors of the bottom face
-    color = Get({ 0, 0, 0 }).value().get().GetFaceColor(Face::Bottom);
+    color = GetPieceColors({ 0, 0, 0 }).value().get()[Face::Bottom];
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get({ x, 0, z }).value().get().GetFaceColor(Face::Bottom) != color)
+            if (GetPieceColors({ x, 0, z }).value().get()[Face::Bottom] != color)
                 return false;
     
     // check the colors of the left face
-    color = Get({ 0, 0, 0 }).value().get().GetFaceColor(Face::Left);
+    color = GetPieceColors({ 0, 0, 0 }).value().get()[Face::Left];
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t y = 0; y < m_Layers; y++)
-            if (Get({ 0, y, z }).value().get().GetFaceColor(Face::Left) != color)
+            if (GetPieceColors({ 0, y, z }).value().get()[Face::Left] != color)
                 return false;
 
     // check the colors of the front face
-    color = Get({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get().GetFaceColor(Face::Front);
+    color = GetPieceColors({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get()[Face::Front];
     for (uint32_t y = 0; y < m_Layers; y++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get({ x, y, m_Layers - 1 }).value().get().GetFaceColor(Face::Front) != color)
+            if (GetPieceColors({ x, y, m_Layers - 1 }).value().get()[Face::Front] != color)
                 return false;
 
     // check the colors of the top face
-    color = Get({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get().GetFaceColor(Face::Top);
+    color = GetPieceColors({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get()[Face::Top];
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t x = 0; x < m_Layers; x++)
-            if (Get({ x, m_Layers - 1, z }).value().get().GetFaceColor(Face::Top) != color)
+            if (GetPieceColors({ x, m_Layers - 1, z }).value().get()[Face::Top] != color)
                 return false;
 
     // check the colors of the right face
-    color = Get({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get().GetFaceColor(Face::Right);
+    color = GetPieceColors({ m_Layers - 1, m_Layers - 1, m_Layers - 1 }).value().get()[Face::Right];
     for (uint32_t z = 0; z < m_Layers; z++)
         for (uint32_t y = 0; y < m_Layers; y++)
-            if (Get({ m_Layers - 1, y, z }).value().get().GetFaceColor(Face::Right) != color)
+            if (GetPieceColors({ m_Layers - 1, y, z }).value().get()[Face::Right] != color)
                 return false;
         
     return true;
@@ -375,17 +406,24 @@ auto Cube::IsSolved() const -> bool
 
 auto Cube::Update(float deltaTime) -> void
 {
-    for (auto& piece : m_Pieces)
-        piece.UpdateRotation(ROTATION_SPEED * deltaTime);
-}
+    if (m_Rotations.empty())
+        return;
 
+    // if the rotation is done
+    AxialRotation& rotation = m_Rotations.front();
+    auto indices = _GetIndicesByTurn(rotation.GetTurn());
+    if (rotation.Update(ROTATION_SPEED * deltaTime, _GetPiecesByIndices(indices)))
+    {
+        auto newPieces = _GetPieceClonesByIndices(_GetIndicesByTurnInversed(rotation.GetTurn()));
+        _SetPiecesByIndices(indices, newPieces);
+
+        m_Rotations.pop();
+    }
+}
 auto Cube::Draw() const -> void
 {
     rlPushMatrix();
     rlMultMatrixf(MatrixToFloat(m_RotationMatrix));
-
-    const float internalCubeSize = m_Size - 1.5f * m_Size / m_Layers * (1 - STICKER_SCALE);
-    //DrawCube(m_Position, internalCubeSize, internalCubeSize, internalCubeSize, BLACK);
 
     for (const auto& piece : m_Pieces)
         piece.Draw();
@@ -393,107 +431,170 @@ auto Cube::Draw() const -> void
     rlPopMatrix();
 }
 
-auto Cube::TurnSide(Direction direction, uint32_t layerIndex, bool clockwise) -> void
+auto Cube::MakeTurn(const Turn& turn) -> void
 {
-    switch (direction)
+    auto indices = _GetIndicesByTurn(turn);
+    auto indicesInversed = _GetIndicesByTurnInversed(turn);
+
+    auto newPieceColors = _GetPieceColorsClonesByIndices(indicesInversed);
+    for (auto& colors : newPieceColors)
+        colors.HandleRotation(turn.LayerType, turn.Clockwise);
+
+    _SetPieceColorsByIndices(indices, newPieceColors);
+
+    m_Rotations.emplace(turn);
+}
+
+auto Cube::_GetIndicesByTurn(const Turn& turn) const -> std::vector<PieceLocation>
+{
+    switch (turn.LayerType)
     {
         case Direction::Horizontal:
         {
-            // rotate the pieces phisically
+            std::vector<PieceLocation> indices;
+            indices.reserve(m_Layers);
             for (uint32_t z = 0; z < m_Layers; z++)
                 for (uint32_t x = 0; x < m_Layers; x++)
-                {
-                    auto piece = Get({ x, layerIndex, z });
-                    if (!piece.has_value())
-                        continue;
+                    indices.emplace_back(x, turn.LayerIndex, z);
 
-                    piece.value().get().Rotate(direction, clockwise);
-                }
-
-            // caluculate the new piece for each slot
-            std::vector<Piece> newPieces;
-            newPieces.reserve(m_Layers);
-            for (uint32_t z = 0; z < m_Layers; z++)
-                for (uint32_t x = 0; x < m_Layers; x++)
-                {
-                    if (clockwise)
-                        newPieces.push_back(Get({ z, layerIndex, m_Layers - 1 - x }).value().get());
-                    else
-                        newPieces.push_back(Get({ m_Layers - 1 - z, layerIndex, x }).value().get());
-                }
-            
-            // set the new pieces to their new slots
-            for (uint32_t z = 0; z < m_Layers; z++)
-                for (uint32_t x = 0; x < m_Layers; x++)
-                    Set({ x, layerIndex, z }, newPieces[z * m_Layers + x]);
-
-            break;
+            return indices;
         }
     
         case Direction::Vertical:
         {
-            // rotate the pieces phisically
+            std::vector<PieceLocation> indices;
+            indices.reserve(m_Layers);
             for (uint32_t z = 0; z < m_Layers; z++)
                 for (uint32_t y = 0; y < m_Layers; y++)
-                {
-                    auto piece = Get({ layerIndex, y, z });
-                    if (!piece.has_value())
-                        continue;
+                    indices.emplace_back(turn.LayerIndex, y, z);
 
-                    piece.value().get().Rotate(direction, clockwise);
-                }
-
-            // caluculate the new piece for each slot
-            std::vector<Piece> newPieces;
-            newPieces.reserve(m_Layers);
-            for (uint32_t z = 0; z < m_Layers; z++)
-                for (uint32_t y = 0; y < m_Layers; y++)
-                {
-                    if (clockwise)
-                        newPieces.push_back(Get({ layerIndex, m_Layers - 1 - z, y }).value().get());
-                    else
-                        newPieces.push_back(Get({ layerIndex, z, m_Layers - 1 - y }).value().get());
-                }
-
-            // set the new pieces to their new slots
-            for (uint32_t z = 0; z < m_Layers; z++)
-                for (uint32_t y = 0; y < m_Layers; y++)
-                    Set({ layerIndex, y, z }, newPieces[z * m_Layers + y]);
-
-            break;
+            return indices;
         }
 
         case Direction::Depthical:
         {
-            // rotate the pieces phisically
+            std::vector<PieceLocation> indices;
+            indices.reserve(m_Layers);
             for (uint32_t y = 0; y < m_Layers; y++)
                 for (uint32_t x = 0; x < m_Layers; x++)
-                {
-                    auto piece = Get({ x, y, layerIndex });
-                    if (!piece.has_value())
-                        continue;
+                    indices.emplace_back(x, y, turn.LayerIndex);
 
-                    piece.value().get().Rotate(direction, clockwise);
-                }
-
-            // caluculate the new piece for each slot
-            std::vector<Piece> newPieces;
-            newPieces.reserve(m_Layers);
-            for (uint32_t y = 0; y < m_Layers; y++)
-                for (uint32_t x = 0; x < m_Layers; x++)
-                {
-                    if (clockwise)
-                        newPieces.push_back(Get({ m_Layers - 1 - y, x, layerIndex }).value().get());
-                    else
-                        newPieces.push_back(Get({ y, m_Layers - 1 - x, layerIndex }).value().get());
-                }
-            
-            // set the new pieces to their new slots
-            for (uint32_t y = 0; y < m_Layers; y++)
-                for (uint32_t x = 0; x < m_Layers; x++)
-                    Set({ x, y, layerIndex }, newPieces[y * m_Layers + x]);
-
-            break;
+            return indices;
         }
     }
+
+    std::unreachable();
+}
+auto Cube::_GetIndicesByTurnInversed(const Turn& turn) const -> std::vector<PieceLocation>
+{
+    switch (turn.LayerType)
+    {
+        case Direction::Horizontal:
+        {
+            std::vector<PieceLocation> indices;
+            indices.reserve(m_Layers);
+            for (uint32_t z = 0; z < m_Layers; z++)
+            {
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    if (turn.Clockwise)
+                        indices.emplace_back(z, turn.LayerIndex, m_Layers - 1 - x);
+                    else
+                        indices.emplace_back( m_Layers - 1 - z, turn.LayerIndex, x);
+                   
+                }
+            }
+
+            return indices;
+        }
+    
+        case Direction::Vertical:
+        {
+            std::vector<PieceLocation> indices;
+            indices.reserve(m_Layers);
+            for (uint32_t z = 0; z < m_Layers; z++)
+            {
+                for (uint32_t y = 0; y < m_Layers; y++)
+                {
+                    if (turn.Clockwise)
+                        indices.emplace_back(turn.LayerIndex, m_Layers - 1 - z, y);
+                    else
+                        indices.emplace_back(turn.LayerIndex, z, m_Layers - 1 - y);
+                }
+            }
+
+            return indices;
+        }
+
+        case Direction::Depthical:
+        {
+            std::vector<PieceLocation> indices;
+            indices.reserve(m_Layers);
+            for (uint32_t y = 0; y < m_Layers; y++)
+            {
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    if (turn.Clockwise)
+                        indices.emplace_back(m_Layers - 1 - y, x, turn.LayerIndex);
+                    else
+                        indices.emplace_back(y, m_Layers - 1 - x, turn.LayerIndex);
+                }
+            }
+
+            return indices;
+        }
+    }
+
+    std::unreachable();
+}
+
+auto Cube::_GetPieceColorsClonesByIndices(const std::vector<PieceLocation>& indices) const -> std::vector<PieceColors>
+{
+    std::vector<PieceColors> pieceColors;
+    pieceColors.reserve(indices.size());
+    for (const auto& index : indices)
+    {
+        auto colors = GetPieceColors(index);
+        if (colors.has_value())
+            pieceColors.push_back(colors.value().get());
+    }
+
+    return pieceColors;
+}
+auto Cube::_SetPieceColorsByIndices(const std::vector<PieceLocation>& indices, const std::vector<PieceColors>& pieceColors) -> void
+{
+    for (uint32_t i = 0; i < indices.size(); i++)
+        SetPieceColors(indices[i], pieceColors[i]);
+}
+
+auto Cube::_GetPiecesByIndices(const std::vector<PieceLocation>& indices) -> std::vector<std::reference_wrapper<Piece>>
+{
+    std::vector<std::reference_wrapper<Piece>> pieces;
+    pieces.reserve(indices.size());
+    for (const auto& index : indices)
+    {
+        auto piece = _GetPiece(index);
+        if (piece.has_value())
+            pieces.push_back(piece.value());
+    }
+
+    return pieces;
+}
+auto Cube::_GetPieceClonesByIndices(const std::vector<PieceLocation>& indices) const -> std::vector<Piece>
+{
+    std::vector<Piece> pieces;
+    pieces.reserve(indices.size());
+    for (const auto& index : indices)
+    {
+        auto piece = _GetPiece(index);
+        if (piece.has_value())
+            pieces.push_back(piece.value().get());
+    }
+
+    return pieces;
+}
+auto Cube::_SetPiecesByIndices(const std::vector<PieceLocation>& indices, const std::vector<Piece>& pieces) -> void
+{
+    for (uint32_t i = 0; i < indices.size(); i++)
+        _SetPiece(indices[i], pieces[i]);
 }
