@@ -426,17 +426,21 @@ auto Cube::Update(float deltaTime) -> void
     if (m_Rotations.empty())
         return;
 
-    // update the rotation (if animations are disabled, the whole rotation happens immadiately)
-    AxialRotation& rotation = m_Rotations.front();
-    auto indices = _GetIndicesByTurn(rotation.GetTurn());
+    // update the rotation (do all rotations if animations are disabled)
     float rotationAngle = m_Animations ? m_AnimationSpeed * deltaTime : PI;
-    if (rotation.Update(rotationAngle, _GetPiecesByIndices(indices)))
+    do
     {
-        auto newPieces = _GetPieceClonesByIndices(_GetIndicesByTurnInversed(rotation.GetTurn()));
-        _SetPiecesByIndices(indices, newPieces);
+        AxialRotation& rotation = m_Rotations.front();
+        auto indices = _GetIndicesByTurn(rotation.GetTurn());
+        if (rotation.Update(rotationAngle, _GetPiecesByIndices(indices)))
+        {
+            auto newPieces = _GetPieceClonesByIndices(_GetIndicesByTurnInversed(rotation.GetTurn()));
+            _SetPiecesByIndices(indices, newPieces);
 
-        m_Rotations.pop();
+            m_Rotations.pop();
+        }
     }
+    while (!m_Animations && !m_Rotations.empty());
 }
 auto Cube::Draw() const -> void
 {
