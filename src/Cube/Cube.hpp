@@ -13,6 +13,7 @@
 #include <vector>
 #include <queue>
 #include <optional>
+#include <algorithm>
 
 class Cube
 {
@@ -55,17 +56,10 @@ public:
         
         m_CurrentPieceColors[index] = pieceColors;
     }
-
-    auto FindPieceByColors(FaceColor color, auto... colors) -> std::optional<std::reference_wrapper<const PieceColors>>
+    auto GetPieceLocationByExactColors(FaceColor color, auto... colors) -> std::optional<PieceLocation>
     {
-        for (const auto& piece : m_CurrentPieceColors)
-            if (((piece.GetFaceByColor(color) != Face::None) && ... && (piece.GetFaceByColor(colors) != Face::None)))
-                return std::ref(piece);
+        std::array<FaceColor, sizeof...(colors) + 1> searchColors = { color, colors... };
 
-        return std::nullopt;
-    }
-    auto GetPieceLocationByColors(FaceColor color, auto... colors) -> std::optional<PieceLocation>
-    {
         for (uint32_t z = 0; z < m_Layers; z++)
         {
             for (uint32_t y = 0; y < m_Layers; y++)
@@ -77,14 +71,48 @@ public:
                         continue;
 
                     const auto& piece = pieceOpt.value().get();
-                    if (((piece.GetFaceByColor(color) != Face::None) && ... && (piece.GetFaceByColor(colors) != Face::None)))
+                    const auto& pieceColors = piece.GetColors();
+
+                    if (pieceColors.size() != searchColors.size())
+                        continue;
+
+                    bool allColorsMatch = std::ranges::all_of(searchColors, 
+                        [&pieceColors](FaceColor col) {
+                            return col == FaceColor::None || std::ranges::find(pieceColors, col) != pieceColors.end();
+                        });
+
+                    if (allColorsMatch)
                         return PieceLocation { x, y, z };
                 }
             }
         }
-                
+
         return std::nullopt;
     }
+    auto GetPieceLocationsByColors(FaceColor color, auto... colors) -> std::vector<PieceLocation>
+    {
+        std::vector<PieceLocation> locations;
+        for (uint32_t z = 0; z < m_Layers; z++)
+        {
+            for (uint32_t y = 0; y < m_Layers; y++)
+            {
+                for (uint32_t x = 0; x < m_Layers; x++)
+                {
+                    auto pieceOpt = GetPieceColors({ x, y, z });
+                    if (!pieceOpt.has_value())
+                        continue;
+
+                    // check if the piece has the colors
+                    const auto& piece = pieceOpt.value().get();
+                    if (((piece.GetFaceByColor(color) != Face::None) && ... && (piece.GetFaceByColor(colors) != Face::None)))
+                        locations.emplace_back(x, y, z);
+                }
+            }
+        }
+
+        return locations;
+    }
+    
 
     inline auto Rotate(float x, float y, float z) -> void
     {

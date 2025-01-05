@@ -92,14 +92,21 @@ auto CubeSolver::_Solve2x2() -> void
 }
 auto CubeSolver::_Solve3x3() -> void
 {
-    m_Cube.MakeMove(Move::z2);
-    // ...
+    uint32_t lastLayerIndex = m_Cube.GetSize() - 1;
+
+    _SolveWhiteCenterToBottom();
+    _SolveGreenCenterToFront();
+
+    _SolveCorner(FaceColor::White, FaceColor::Red, FaceColor::Green, { 0, 0, lastLayerIndex }, FaceColor::White);
+    _SolveCorner(FaceColor::White, FaceColor::Orange, FaceColor::Green, { lastLayerIndex, 0, lastLayerIndex }, FaceColor::White);
+    _SolveCorner(FaceColor::White, FaceColor::Orange, FaceColor::Blue, { lastLayerIndex, 0, 0 }, FaceColor::White);
+    _SolveCorner(FaceColor::White, FaceColor::Red, FaceColor::Blue, { 0, 0, 0 }, FaceColor::White);
 }
 
 
 auto CubeSolver::_SolveCorner(FaceColor color1, FaceColor color2, FaceColor color3, PieceLocation destLocation, FaceColor bottomColor) -> void
 {
-    PieceLocation cornerLocation = m_Cube.GetPieceLocationByColors(color1, color2, color3).value();
+    PieceLocation cornerLocation = m_Cube.GetPieceLocationByExactColors(color1, color2, color3).value();
     
     // already solved
     if (cornerLocation == destLocation && m_Cube.GetPieceColors(destLocation).value().get()[Face::Bottom] == bottomColor)
@@ -115,7 +122,7 @@ auto CubeSolver::_SolveCorner(FaceColor color1, FaceColor color2, FaceColor colo
     // insert the corner to the destination (right below the current position)
     _InsertCornerToBottom({ destLocation.X, m_Cube.GetSize() - 1, destLocation.Z }, bottomColor);
 }
-auto CubeSolver::_SolveOLL(std::span<const Algorithm> OLLs, FaceColor faceColor) -> void
+auto CubeSolver::_SolveOLL(const std::span<const Algorithm>& OLLs, FaceColor faceColor) -> void
 {
     ColorPattern OLLPattern = ColorPattern::CreateFromTopLayerWithBaseColor(m_Cube, faceColor);
     for (const auto& OLL : OLLs)
@@ -132,7 +139,7 @@ auto CubeSolver::_SolveOLL(std::span<const Algorithm> OLLs, FaceColor faceColor)
         }
     }
 }
-auto CubeSolver::_SolvePLL(std::span<const Algorithm> PLLs) -> void
+auto CubeSolver::_SolvePLL(const std::span<const Algorithm>& PLLs) -> void
 {
     ColorPattern PLLPattern = ColorPattern::CreateFromTopLayer(m_Cube);
     for (const auto& PLL : PLLs)
@@ -148,6 +155,31 @@ auto CubeSolver::_SolvePLL(std::span<const Algorithm> PLLs) -> void
             break;
         }
     }
+}
+
+auto CubeSolver::_SolveWhiteCenterToBottom() -> void
+{
+    // get the white center location
+    PieceLocation whiteCenter = m_Cube.GetPieceLocationByExactColors(FaceColor::White).value();
+
+    if (whiteCenter.Y == 0) // if it is already solved
+        return;
+    else if (whiteCenter.Y == m_Cube.GetSize() - 1) // if it is on the top
+        m_Cube.MakeMoves("M2");
+    else if (whiteCenter.X == 0) // if it is on the left
+        m_Cube.MakeMoves("S'");
+    else if (whiteCenter.X == m_Cube.GetSize() - 1) // if it is on the right
+        m_Cube.MakeMoves("S");
+    else if (whiteCenter.Z == 0) // if it is on the back
+        m_Cube.MakeMoves("M'");
+    else if (whiteCenter.Z == m_Cube.GetSize() - 1) // if it is on the front
+        m_Cube.MakeMoves("M");
+    else
+        std::unreachable();
+}
+auto CubeSolver::_SolveGreenCenterToFront() -> void
+{
+
 }
 
 auto CubeSolver::_MoveCornerToTop(PieceLocation location) -> PieceLocation
