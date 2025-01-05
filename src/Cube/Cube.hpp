@@ -72,15 +72,15 @@ public:
 
                     const auto& pieceColors = pieceOpt.value().get().GetColors();
 
-                    // check if all the piece colors are found among the given colors (except the Nones)
+                    // check if all the piece colors (except the Nones) are found in the piece colors
                     bool allColorsMatch = std::ranges::all_of(pieceColors, 
                         [&searchColors](FaceColor col) {
-                            return col == FaceColor::None || 
+                            return col == FaceColor::None ||
                             std::ranges::find(searchColors, col) != searchColors.end();
                         }
                     );
 
-                    // check if all the given colors are found among the piece colors
+                    // check if all the given colors are found in the piece colors
                     allColorsMatch &= std::ranges::all_of(searchColors, 
                         [&pieceColors](FaceColor col) {
                             return std::ranges::find(pieceColors, col) != pieceColors.end();

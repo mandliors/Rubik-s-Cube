@@ -26,11 +26,15 @@ private:
     auto _SolvePLL(const std::span<const Algorithm>& PLLs) -> void;
 
     auto _SolveWhiteCenterToBottom() -> void;
-    auto _SolveGreenCenterToFront() -> void;
+    auto _SolveGreenCenterToFrontAfterWhiteCenter() -> void;
 
     auto _MoveCornerToTop(PieceLocation location) -> PieceLocation;
-    auto _MoveCornerOnTopToPosition(PieceLocation location, uint32_t x, uint32_t z) -> void;
+    auto _MoveCornerOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> void;
     auto _InsertCornerToBottom(PieceLocation location, FaceColor bottomColor) -> void;
+
+    auto _MoveEdgeToTop(PieceLocation location) -> PieceLocation;
+    auto _MoveEdgeOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> void;
+    auto _InsertEdgeToBottom(PieceLocation location, FaceColor bottomColor) -> void;
 
 private:
     Cube& m_Cube;
