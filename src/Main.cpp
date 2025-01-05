@@ -20,7 +20,7 @@ int main()
         .projection = CAMERA_PERSPECTIVE
     };
 
-    Cube cube { 2, Vector3{ 0, 0, 0 }, 2.0f };
+    Cube cube { 3, Vector3{ 0, 0, 0 }, 2.0f };
     cube.Rotate(0.4f, -0.2f, 0.0f);
 
     CubeSolver solver(cube);

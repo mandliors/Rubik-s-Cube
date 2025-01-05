@@ -70,16 +70,22 @@ public:
                     if (!pieceOpt.has_value())
                         continue;
 
-                    const auto& piece = pieceOpt.value().get();
-                    const auto& pieceColors = piece.GetColors();
+                    const auto& pieceColors = pieceOpt.value().get().GetColors();
 
-                    if (pieceColors.size() != searchColors.size())
-                        continue;
+                    // check if all the piece colors are found among the given colors (except the Nones)
+                    bool allColorsMatch = std::ranges::all_of(pieceColors, 
+                        [&searchColors](FaceColor col) {
+                            return col == FaceColor::None || 
+                            std::ranges::find(searchColors, col) != searchColors.end();
+                        }
+                    );
 
-                    bool allColorsMatch = std::ranges::all_of(searchColors, 
+                    // check if all the given colors are found among the piece colors
+                    allColorsMatch &= std::ranges::all_of(searchColors, 
                         [&pieceColors](FaceColor col) {
-                            return col == FaceColor::None || std::ranges::find(pieceColors, col) != pieceColors.end();
-                        });
+                            return std::ranges::find(pieceColors, col) != pieceColors.end();
+                        }
+                    );
 
                     if (allColorsMatch)
                         return PieceLocation { x, y, z };
