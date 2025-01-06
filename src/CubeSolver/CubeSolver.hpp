@@ -22,6 +22,7 @@ private:
     auto _Solve3x3() -> void;
 
     auto _SolveCorner(FaceColor color1, FaceColor color2, FaceColor color3, PieceLocation destLocation, FaceColor bottomColor) -> void;
+    auto _SolveEdge(FaceColor color1, FaceColor color2, PieceLocation destLocation, FaceColor bottomColor) -> void;
     auto _SolveOLL(const std::span<const Algorithm>& OLLs, FaceColor faceColor) -> void;
     auto _SolvePLL(const std::span<const Algorithm>& PLLs) -> void;
 
