@@ -97,10 +97,10 @@ auto CubeSolver::_Solve3x3() -> void
     _SolveWhiteCenterToBottom();
     _SolveGreenCenterToFrontAfterWhiteCenter();
     
-    _SolveEdge(FaceColor::White, FaceColor::Red, { 0, 0, 1 }, FaceColor::White);
-    _SolveEdge(FaceColor::White, FaceColor::Blue, { 1, 0, 0 }, FaceColor::White);
-    _SolveEdge(FaceColor::White, FaceColor::Orange, { lastLayerIndex, 0, 1 }, FaceColor::White);
-    _SolveEdge(FaceColor::White, FaceColor::Green, { 1, 0, lastLayerIndex }, FaceColor::White);
+    _SolveEdgeToBottom(FaceColor::White, FaceColor::Red, { 0, 0, 1 }, FaceColor::White);
+    _SolveEdgeToBottom(FaceColor::White, FaceColor::Blue, { 1, 0, 0 }, FaceColor::White);
+    _SolveEdgeToBottom(FaceColor::White, FaceColor::Orange, { lastLayerIndex, 0, 1 }, FaceColor::White);
+    _SolveEdgeToBottom(FaceColor::White, FaceColor::Green, { 1, 0, lastLayerIndex }, FaceColor::White);
 
     _SolveCorner(FaceColor::White, FaceColor::Red, FaceColor::Green, { 0, 0, lastLayerIndex }, FaceColor::White);
     _SolveCorner(FaceColor::White, FaceColor::Orange, FaceColor::Green, { lastLayerIndex, 0, lastLayerIndex }, FaceColor::White);
@@ -117,31 +117,31 @@ auto CubeSolver::_SolveCorner(FaceColor color1, FaceColor color2, FaceColor colo
     if (cornerLocation == destLocation && m_Cube.GetPieceColors(destLocation).value().get()[Face::Bottom] == bottomColor)
         return;
 
-    // move the corner to the top layer
-    cornerLocation = _MoveCornerToTop(cornerLocation);
-
-    // move the corner above the destination
-    _MoveCornerOnTopToPosition(cornerLocation, destLocation.X, destLocation.Z);
-
-    // insert the corner to the destination (right below the current position)
-    _InsertCornerToBottom({ destLocation.X, m_Cube.GetSize() - 1, destLocation.Z }, bottomColor);
+    // move the corner to the top layer, then above the destination, and finally insert it to the destination
+    _InsertCornerToBottom(
+        _MoveCornerOnTopToPosition(
+            _MoveCornerToTop(cornerLocation),
+            destLocation.X, destLocation.Z
+        ),
+        bottomColor
+    );
 }
-auto CubeSolver::_SolveEdge(FaceColor color1, FaceColor color2, PieceLocation destLocation, FaceColor bottomColor) -> void
+auto CubeSolver::_SolveEdgeToBottom(FaceColor color1, FaceColor color2, PieceLocation destLocation, FaceColor bottomColor) -> void
 {
     PieceLocation edgeLocation = m_Cube.GetPieceLocationByExactColors(color1, color2).value();
     
     // already solved
     if (edgeLocation == destLocation && m_Cube.GetPieceColors(destLocation).value().get()[Face::Bottom] == bottomColor)
         return;
-
-    // move the edge to the top layer
-    edgeLocation = _MoveEdgeToTop(edgeLocation);
-
-    // move the edge above the destination
-    _MoveEdgeOnTopToPosition(edgeLocation, destLocation.X, destLocation.Z);
-
-    // insert the edge to the destination (right below the current position)
-    _InsertEdgeToBottom({ destLocation.X, m_Cube.GetSize() - 1, destLocation.Z }, bottomColor);
+        
+    // move the edge to the top layer, then above the destination, and finally insert it to the destination
+    _InsertEdgeToBottom(
+        _MoveEdgeOnTopToPosition(
+            _MoveEdgeToTop(edgeLocation),
+            destLocation.X, destLocation.Z
+        ), 
+        bottomColor
+    );
 }
 auto CubeSolver::_SolveOLL(const std::span<const Algorithm>& OLLs, FaceColor faceColor) -> void
 {
@@ -248,11 +248,11 @@ auto CubeSolver::_MoveCornerToTop(PieceLocation location) -> PieceLocation
 
     std::unreachable();
 }
-auto CubeSolver::_MoveCornerOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> void
+auto CubeSolver::_MoveCornerOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> PieceLocation
 {
     // already in the correct position
     if (location.X == destX && location.Z == destZ)
-        return;
+        return { destX, m_Cube.GetSize() - 1, destZ };
 
     // make one U or U'
     if (location.X == destX)
@@ -274,12 +274,14 @@ auto CubeSolver::_MoveCornerOnTopToPosition(PieceLocation location, uint32_t des
     // make a U2
     else
         m_Cube.MakeMove(Move::U2);
+
+    return { destX, m_Cube.GetSize() - 1, destZ };
 }
-auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomColor) -> void
+auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomColor) -> PieceLocation
 {
     // get the bottomColor colored face
     Face bottomColorFace = m_Cube
-        .GetPieceColors({ location.X, location.Y, location.Z })
+        .GetPieceColors(location)
         .value().get()
         .GetFaceByColor(bottomColor);
 
@@ -290,77 +292,77 @@ auto CubeSolver::_InsertCornerToBottom(PieceLocation location, FaceColor bottomC
         {
         case Face::Back:
             m_Cube.MakeMoves("B' U' B");
-            return;
+            break;
         case Face::Left:
             m_Cube.MakeMoves("L U L'");
-            return;
+            break;
         case Face::Top:
-            m_Cube.MakeMoves("L U2 L' U' L U L'");        
-            return;
+            m_Cube.MakeMoves("L U2 L' U' L U L'");
+            break;
         
         default:
             std::unreachable();
         }
     }
     // top right back
-    if (location.X != 0 && location.Z == 0)
+    else if (location.X != 0 && location.Z == 0)
     {
         switch (bottomColorFace)
         {
         case Face::Back:
             m_Cube.MakeMoves("B U B'");
-            return;
+            break;
         case Face::Right:
             m_Cube.MakeMoves("R' U' R");
-            return;
+            break;
         case Face::Top:
-            m_Cube.MakeMoves("R' U2 R U R' U' R");        
-            return;
+            m_Cube.MakeMoves("R' U2 R U R' U' R");
+            break;
         
         default:
             std::unreachable();
         }
     }
     // top right front
-    if (location.X != 0 && location.Z != 0)
+    else if (location.X != 0 && location.Z != 0)
     {        
         switch (bottomColorFace)
         {
         case Face::Front:
             m_Cube.MakeMoves("F' U' F");
-            return;
+            break;
         case Face::Right:
             m_Cube.MakeMoves("R U R'");
-            return;
+            break;
         case Face::Top:
-            m_Cube.MakeMoves("R U2 R' U' R U R'");        
-            return;
+            m_Cube.MakeMoves("R U2 R' U' R U R'");
+            break;
         
         default:
             std::unreachable();
         }
     }
     // top left front
-    if (location.X == 0 && location.Z != 0)
+    else if (location.X == 0 && location.Z != 0)
     {       
         switch (bottomColorFace)
         {
         case Face::Front:
             m_Cube.MakeMoves("F U F'");
-            return;
+            break;
         case Face::Left:
             m_Cube.MakeMoves("L' U' L");
-            return;
+            break;
         case Face::Top:
-            m_Cube.MakeMoves("L' U2 L U L' U' L");        
-            return;
+            m_Cube.MakeMoves("L' U2 L U L' U' L");
+            break;
         
         default:
             std::unreachable();
         }
     }
 
-    std::unreachable();
+    return { location.X, 0, location.Z };
 }
 
 auto CubeSolver::_MoveEdgeToTop(PieceLocation location) -> PieceLocation
@@ -436,55 +438,40 @@ auto CubeSolver::_MoveEdgeToTop(PieceLocation location) -> PieceLocation
 
     std::unreachable();
 }
-auto CubeSolver::_MoveEdgeOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> void
+auto CubeSolver::_MoveEdgeOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> PieceLocation
 {
     // already in the correct position
     if (location.X == destX && location.Z == destZ)
-        return;
+        return { destX, m_Cube.GetSize() - 1, destZ };
 
     // make a U2
     if (location.X == destX || location.Z == destZ)
-    {
         m_Cube.MakeMove(Move::U2);
-        return;
-    }
     // make one U or U'
     else
     {
         // clockwise cases
         if ((location.X == 0 && destZ == 0) || (location.X == m_Cube.GetSize() - 1 && destZ == m_Cube.GetSize() - 1))
-        {
             m_Cube.MakeMove(Move::U);
-            return;
-        }
         // clockwise cases #2
-        if ((location.Z == 0 && destX == m_Cube.GetSize() - 1) || (location.Z == m_Cube.GetSize() - 1 && destX == 0))
-        {
+        else if ((location.Z == 0 && destX == m_Cube.GetSize() - 1) || (location.Z == m_Cube.GetSize() - 1 && destX == 0))
             m_Cube.MakeMove(Move::U);
-            return;
-        }
 
-        // counter.clockwise cases
-        if ((location.X == 0 && destZ == m_Cube.GetSize() - 1) || (location.X == m_Cube.GetSize() - 1 && destZ == 0))
-        {
+        // counter-clockwise cases
+        else if ((location.X == 0 && destZ == m_Cube.GetSize() - 1) || (location.X == m_Cube.GetSize() - 1 && destZ == 0))
             m_Cube.MakeMove(Move::U_);
-            return;
-        }
-        // counter.clockwise cases #2
-        if ((location.Z == 0 && destX == 0) || (location.Z == m_Cube.GetSize() - 1 && destX == m_Cube.GetSize() - 1))
-        {
+        // counter-clockwise cases #2
+        else if ((location.Z == 0 && destX == 0) || (location.Z == m_Cube.GetSize() - 1 && destX == m_Cube.GetSize() - 1))
             m_Cube.MakeMove(Move::U_);
-            return;
-        }
-
-        std::unreachable();
     }
+
+    return { destX, m_Cube.GetSize() - 1, destZ };
 }
-auto CubeSolver::_InsertEdgeToBottom(PieceLocation location, FaceColor bottomColor) -> void
+auto CubeSolver::_InsertEdgeToBottom(PieceLocation location, FaceColor bottomColor) -> PieceLocation
 {
     // get the bottomColor colored face
     Face bottomColorFace = m_Cube
-        .GetPieceColors({ location.X, location.Y, location.Z })
+        .GetPieceColors(location)
         .value().get()
         .GetFaceByColor(bottomColor);
 
@@ -493,65 +480,41 @@ auto CubeSolver::_InsertEdgeToBottom(PieceLocation location, FaceColor bottomCol
     {
         // bottomColor on top
         if (bottomColorFace == Face::Top)
-        {
             m_Cube.MakeMoves("S U2 S'");
-            return;
-        }
         // bottomColor on side
         if (bottomColorFace == Face::Left)
-        {
             m_Cube.MakeMoves("U S U' S'");
-            return;
-        }
     }
     // back
-    if (location.Z == 0)
+    else if (location.Z == 0)
     {
         // bottomColor on top
         if (bottomColorFace == Face::Top)
-        {
             m_Cube.MakeMoves("M U2 M'");
-            return;
-        }
         // bottomColor on side
         if (bottomColorFace == Face::Back)
-        {
             m_Cube.MakeMoves("U' M U M'");
-            return;
-        }
     }
     // right
-    if (location.X == m_Cube.GetSize() - 1)
+    else if (location.X == m_Cube.GetSize() - 1)
     {
         // bottomColor on top
         if (bottomColorFace == Face::Top)
-        {
             m_Cube.MakeMoves("S' U2 S");
-            return;
-        }
         // bottomColor on side
         if (bottomColorFace == Face::Right)
-        {
             m_Cube.MakeMoves("U' S' U S");
-            return;
-        }
     }
     // front
-    if (location.Z == m_Cube.GetSize() - 1)
+    else if (location.Z == m_Cube.GetSize() - 1)
     {
         // bottomColor on top
         if (bottomColorFace == Face::Top)
-        {
             m_Cube.MakeMoves("M' U2 M");
-            return;
-        }
         // bottomColor on side
         if (bottomColorFace == Face::Front)
-        {
             m_Cube.MakeMoves("U M' U' M");
-            return;
-        }
     }
 
-    std::unreachable();
+    return { location.X, 0, location.Z };
 }
