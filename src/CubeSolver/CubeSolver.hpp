@@ -23,6 +23,7 @@ private:
 
     auto _SolveCorner(FaceColor color1, FaceColor color2, FaceColor color3, PieceLocation destLocation, FaceColor bottomColor) -> void;
     auto _SolveEdgeToBottom(FaceColor color1, FaceColor color2, PieceLocation destLocation, FaceColor bottomColor) -> void;
+    auto _SolveEdgeToSecondLayer(FaceColor color1, FaceColor color2, PieceLocation destLocation) -> void;
     auto _SolveOLL(const std::span<const Algorithm>& OLLs, FaceColor faceColor) -> void;
     auto _SolvePLL(const std::span<const Algorithm>& PLLs) -> void;
 
@@ -34,8 +35,12 @@ private:
     auto _InsertCornerToBottom(PieceLocation location, FaceColor bottomColor) -> PieceLocation;
 
     auto _MoveEdgeToTop(PieceLocation location) -> PieceLocation;
+    auto _MoveInsertedEdgeToTop(PieceLocation location) -> PieceLocation;
+    auto _MoveEdgeOnTopAboveCorrectSlot(PieceLocation location) -> PieceLocation;
     auto _MoveEdgeOnTopToPosition(PieceLocation location, uint32_t destX, uint32_t destZ) -> PieceLocation;
     auto _InsertEdgeToBottom(PieceLocation location, FaceColor bottomColor) -> PieceLocation;
+
+    auto _InsertEdgeToSecondLayer(PieceLocation location, PieceLocation dest) -> PieceLocation;
 
 private:
     Cube& m_Cube;
