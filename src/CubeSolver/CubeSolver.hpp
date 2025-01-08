@@ -12,10 +12,14 @@ public:
     explicit CubeSolver(Cube& cube);
 
     auto Solve() -> void;
+    
+    auto operator=(CubeSolver other) -> CubeSolver& { m_Cube = other.m_Cube; return *this; }
 
 private:
     static const std::array<Algorithm, 7> s_2x2_OLLs;
     static const std::array<Algorithm, 6> s_2x2_PLLs;
+
+    static const std::array<Algorithm, 57> s_3x3_OLLs;
 
 private:
     auto _Solve2x2() -> void;

@@ -3,9 +3,10 @@
 
 #include <raylib.h>
 
-#include <iostream>
+#include <array>
 
 auto CheckMoves(Cube& cube) -> void;
+auto RecreteCubeAndSolver(Cube* cube, uint32_t cubeSize, CubeSolver* solver) -> void;
 
 int main()
 {
@@ -20,10 +21,21 @@ int main()
         .projection = CAMERA_PERSPECTIVE
     };
 
-    Cube cube { 3, Vector3{ 0, 0, 0 }, 2.0f };
-    cube.Rotate(0.4f, -0.2f, 0.0f);
+    uint32_t cubeSize = 3;
+    Cube cube { cubeSize, { 0, 0, 0 }, 2.0f };
+    CubeSolver solver { cube };
 
-    CubeSolver solver(cube);
+    RecreteCubeAndSolver(&cube, cubeSize, &solver);
+
+    std::array<std::string, 7> texts = {
+        "U/F/R/B/L/D/M/E/S: CW turns",
+        "SHIFT+U/F/R/B/L/D/M/E/S: CCW turns",
+        "SPACE: scramble cube",
+        "ENTER: solve cube",
+        "TAB: toggle rotation anim.",
+        "UP/DOWN: change anim. speed",
+        "LEFT/RIGHT: change cube size",
+    };
 
     while (!WindowShouldClose())
     {
@@ -32,16 +44,31 @@ int main()
             cube.Reset();
             cube.Rotate(0.4f, -0.2f, 0.0f);
         }
+        if (IsKeyPressed(KEY_SPACE))
+            cube.Scramble();
+        if (IsKeyPressed(KEY_ENTER))
+            solver.Solve();
         if (IsKeyPressed(KEY_TAB))
             cube.SetAnimationsEnabled(!cube.GetAnimationsEnabled());
         if (IsKeyPressed(KEY_UP))
             cube.SetAnimationSpeed(cube.GetAnimationSpeed() / 0.9f);
         if (IsKeyPressed(KEY_DOWN))
             cube.SetAnimationSpeed(cube.GetAnimationSpeed() * 0.9f);
-        if (IsKeyPressed(KEY_SPACE))
-            cube.Scramble();
-        if (IsKeyPressed(KEY_ENTER))
-            solver.Solve();
+        if (IsKeyPressed(KEY_LEFT))
+        {
+            cubeSize = cubeSize > 2 ? cubeSize - 1 : 2;
+            RecreteCubeAndSolver(&cube, cubeSize, &solver);
+        }
+        if (IsKeyPressed(KEY_RIGHT))
+        {
+            cubeSize = cubeSize < 69 ? cubeSize + 1 : 69;
+            RecreteCubeAndSolver(&cube, cubeSize, &solver);
+        }
+
+        if (cube.IsSolved())
+            SetWindowTitle("Rubix Cube [SOLVED]");
+        else
+            SetWindowTitle("Rubix Cube");
 
         CheckMoves(cube);
 
@@ -64,7 +91,8 @@ int main()
 
         EndMode3D();
 
-        DrawText(cube.IsSolved() ? "Solved" : "Not solved", 20, 20, 40, WHITE);
+        for (uint32_t i = 0; i < texts.size(); i++)
+            DrawText(texts[i].c_str(), 20, 20 + 28 * i, 28, GRAY);
 
         EndDrawing();
     }
@@ -118,4 +146,11 @@ auto CheckMoves(Cube& cube) -> void
         if (IsKeyPressed(KEY_S))
             cube.MakeMove(Move::S);
     }
+}
+auto RecreteCubeAndSolver(Cube* cube, uint32_t cubeSize, CubeSolver* solver) -> void
+{
+    *cube = Cube { cubeSize, Vector3{ 0, 0, 0 }, 2.0f };
+    cube->Rotate(0.4f, -0.2f, 0.0f);
+
+    *solver = CubeSolver { *cube };
 }

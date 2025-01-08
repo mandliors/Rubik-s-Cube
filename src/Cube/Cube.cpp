@@ -23,6 +23,20 @@ auto Cube::MakeMove(Move move) -> void
     case Move::U_:
         MakeTurn({ Direction::Horizontal, m_Layers - 1, false });
         break;
+    case Move::u:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
+        MakeTurn({ Direction::Horizontal, m_Layers - 2, true });
+        break;
+    case Move::u_:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Horizontal, m_Layers - 1, false });
+        MakeTurn({ Direction::Horizontal, m_Layers - 2, false });
+        break;
     case Move::F:
         MakeTurn({ Direction::Depthical, m_Layers - 1, true });
         break;
@@ -32,6 +46,20 @@ auto Cube::MakeMove(Move move) -> void
         break;
     case Move::F_:
         MakeTurn({ Direction::Depthical, m_Layers - 1, false });
+        break;
+    case Move::f:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Depthical, m_Layers - 1, true });
+        MakeTurn({ Direction::Depthical, m_Layers - 2, true });
+        break;
+    case Move::f_:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Depthical, m_Layers - 1, false });
+        MakeTurn({ Direction::Depthical, m_Layers - 2, false });
         break;
     case Move::R:
         MakeTurn({ Direction::Vertical, m_Layers - 1, true });
@@ -43,6 +71,20 @@ auto Cube::MakeMove(Move move) -> void
     case Move::R_:
         MakeTurn({ Direction::Vertical, m_Layers - 1, false });
         break;
+    case Move::r:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Vertical, m_Layers - 1, true });
+        MakeTurn({ Direction::Vertical, m_Layers - 2, true });
+        break;
+    case Move::r_:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Vertical, m_Layers - 1, false });
+        MakeTurn({ Direction::Vertical, m_Layers - 2, false });
+        break;
     case Move::B:
         MakeTurn({ Direction::Depthical, 0, false });
         break;
@@ -52,6 +94,20 @@ auto Cube::MakeMove(Move move) -> void
         break;
     case Move::B_:
         MakeTurn({ Direction::Depthical, 0, true });
+        break;
+    case Move::b:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Depthical, 0, false });
+        MakeTurn({ Direction::Depthical, 1, false });
+        break;
+    case Move::b_:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Depthical, 0, true });
+        MakeTurn({ Direction::Depthical, 1, true });
         break;
     case Move::L:
         MakeTurn({ Direction::Vertical, 0, false });
@@ -63,6 +119,20 @@ auto Cube::MakeMove(Move move) -> void
     case Move::L_:
         MakeTurn({ Direction::Vertical, 0, true });
         break;
+    case Move::l:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Vertical, 0, false });
+        MakeTurn({ Direction::Vertical, 1, false });
+        break;
+    case Move::l_:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Vertical, 0, true });
+        MakeTurn({ Direction::Vertical, 1, true });
+        break;
     case Move::D:
         MakeTurn({ Direction::Horizontal, 0, false });
         break;
@@ -72,6 +142,20 @@ auto Cube::MakeMove(Move move) -> void
         break;
     case Move::D_:
         MakeTurn({ Direction::Horizontal, 0, true });
+        break;
+    case Move::d:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Horizontal, 0, false });
+        MakeTurn({ Direction::Horizontal, 1, false });
+        break;
+    case Move::d_:
+        if (m_Layers < 3)
+            break;
+
+        MakeTurn({ Direction::Horizontal, 0, true });
+        MakeTurn({ Direction::Horizontal, 1, true });
         break;
     case Move::M:
         if (m_Layers % 2 == 0)
@@ -206,36 +290,60 @@ auto Cube::MakeMoves(std::string_view moveString) -> void
             MakeMove(Move::U2);
         else if (move == "U'")
             MakeMove(Move::U_);
+        else if (move == "u")
+            MakeMove(Move::u);
+        else if (move == "u'")
+            MakeMove(Move::u_);
         else if (move == "F")
             MakeMove(Move::F);
         else if (move == "F2")
             MakeMove(Move::F2);
         else if (move == "F'")
             MakeMove(Move::F_);
+        else if (move == "f")
+            MakeMove(Move::f);
+        else if (move == "f'")
+            MakeMove(Move::f_);
         else if (move == "R")
             MakeMove(Move::R);
         else if (move == "R2")
             MakeMove(Move::R2);
         else if (move == "R'")
             MakeMove(Move::R_);
+        else if (move == "r")
+            MakeMove(Move::r);
+        else if (move == "r'")
+            MakeMove(Move::r_);
         else if (move == "B")
             MakeMove(Move::B);
         else if (move == "B2")
             MakeMove(Move::B2);
         else if (move == "B'")
             MakeMove(Move::B_);
+        else if (move == "b")
+            MakeMove(Move::b);
+        else if (move == "b'")
+            MakeMove(Move::b_);
         else if (move == "L")
             MakeMove(Move::L);
         else if (move == "L2")
             MakeMove(Move::L2);
         else if (move == "L'")
             MakeMove(Move::L_);
+        else if (move == "l")
+            MakeMove(Move::l);
+        else if (move == "l'")
+            MakeMove(Move::l_);
         else if (move == "D")
             MakeMove(Move::D);
         else if (move == "D2")
             MakeMove(Move::D2);
         else if (move == "D'")
             MakeMove(Move::D_);
+        else if (move == "d")
+            MakeMove(Move::d);
+        else if (move == "d'")
+            MakeMove(Move::d_);
         else if (move == "M")
             MakeMove(Move::M);
         else if (move == "M2")
@@ -286,6 +394,10 @@ auto Cube::Scramble() -> void
 }
 auto Cube::IsSolved() const -> bool
 {
+    // if still animating, return false
+    if (!m_Rotations.empty())
+        return false;
+
     FaceColor color;
 
     // check the colors of the back face
