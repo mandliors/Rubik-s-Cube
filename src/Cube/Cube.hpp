@@ -17,6 +17,8 @@
 
 class Cube
 {
+    friend class AxialRotation;
+
 public:
     Cube(uint32_t layers, const Vector3& position, float size);
     
@@ -139,6 +141,7 @@ public:
     auto Draw() const -> void;
 
     auto MakeTurn(const Turn& turn) -> void;
+    auto MakeMultiLayerTurn(const std::vector<Turn>& turns) -> void;
 
 private:
     static constexpr float STICKER_SCALE = 0.9f;

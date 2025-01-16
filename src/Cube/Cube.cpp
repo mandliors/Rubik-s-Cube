@@ -14,257 +14,410 @@ auto Cube::MakeMove(Move move) -> void
     switch (move)
     {
     case Move::U:
+    {
         MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
         break;
+    }
     case Move::U2:
+    {
         MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
         MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
         break;
+    }
     case Move::U_:
+    {
         MakeTurn({ Direction::Horizontal, m_Layers - 1, false });
         break;
+    }
     case Move::u:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Horizontal, m_Layers - 1, true });
-        MakeTurn({ Direction::Horizontal, m_Layers - 2, true });
+        MakeMultiLayerTurn({
+            { Direction::Horizontal, m_Layers - 1, true },
+            { Direction::Horizontal, m_Layers - 2, true }
+        });
         break;
+    }
     case Move::u_:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Horizontal, m_Layers - 1, false });
-        MakeTurn({ Direction::Horizontal, m_Layers - 2, false });
+        MakeMultiLayerTurn({
+            { Direction::Horizontal, m_Layers - 1, false },
+            { Direction::Horizontal, m_Layers - 2, false }
+        });
         break;
+    }
     case Move::F:
+    {
         MakeTurn({ Direction::Depthical, m_Layers - 1, true });
         break;
+    }
     case Move::F2:
+    {
         MakeTurn({ Direction::Depthical, m_Layers - 1, true });
         MakeTurn({ Direction::Depthical, m_Layers - 1, true });
         break;
+    }
     case Move::F_:
+    {
         MakeTurn({ Direction::Depthical, m_Layers - 1, false });
         break;
+    }
     case Move::f:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Depthical, m_Layers - 1, true });
-        MakeTurn({ Direction::Depthical, m_Layers - 2, true });
+        MakeMultiLayerTurn({
+            { Direction::Depthical, m_Layers - 1, true },
+            { Direction::Depthical, m_Layers - 2, true }
+        });
         break;
+    }
     case Move::f_:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Depthical, m_Layers - 1, false });
-        MakeTurn({ Direction::Depthical, m_Layers - 2, false });
+        MakeMultiLayerTurn({
+            { Direction::Depthical, m_Layers - 1, false },
+            { Direction::Depthical, m_Layers - 2, false }
+        });
         break;
+    }
     case Move::R:
+    {
         MakeTurn({ Direction::Vertical, m_Layers - 1, true });
         break;
+    }
     case Move::R2:
+    {
         MakeTurn({ Direction::Vertical, m_Layers - 1, true });
         MakeTurn({ Direction::Vertical, m_Layers - 1, true });
         break;
+    }
     case Move::R_:
+    {
         MakeTurn({ Direction::Vertical, m_Layers - 1, false });
         break;
+    }
     case Move::r:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Vertical, m_Layers - 1, true });
-        MakeTurn({ Direction::Vertical, m_Layers - 2, true });
+        MakeMultiLayerTurn({
+            { Direction::Vertical, m_Layers - 1, true },
+            { Direction::Vertical, m_Layers - 2, true }
+        });
         break;
+    }
     case Move::r_:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Vertical, m_Layers - 1, false });
-        MakeTurn({ Direction::Vertical, m_Layers - 2, false });
+        MakeMultiLayerTurn({
+            { Direction::Vertical, m_Layers - 1, false },
+            { Direction::Vertical, m_Layers - 2, false }
+        });
         break;
+    }
     case Move::B:
+    {
         MakeTurn({ Direction::Depthical, 0, false });
         break;
+    }
     case Move::B2:
+    {
         MakeTurn({ Direction::Depthical, 0, false });
         MakeTurn({ Direction::Depthical, 0, false });
         break;
+    }
     case Move::B_:
+    {
         MakeTurn({ Direction::Depthical, 0, true });
         break;
+    }
     case Move::b:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Depthical, 0, false });
-        MakeTurn({ Direction::Depthical, 1, false });
+        MakeMultiLayerTurn({
+            { Direction::Depthical, 0, false },
+            { Direction::Depthical, 1, false }
+        });
         break;
+    }
     case Move::b_:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Depthical, 0, true });
-        MakeTurn({ Direction::Depthical, 1, true });
+        MakeMultiLayerTurn({
+            { Direction::Depthical, 0, true },
+            { Direction::Depthical, 1, true }
+        });
         break;
+    }
     case Move::L:
+    {
         MakeTurn({ Direction::Vertical, 0, false });
         break;
+    }
     case Move::L2:
+    {
         MakeTurn({ Direction::Vertical, 0, false });
         MakeTurn({ Direction::Vertical, 0, false });
         break;
+    }
     case Move::L_:
+    {
         MakeTurn({ Direction::Vertical, 0, true });
         break;
+    }
     case Move::l:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Vertical, 0, false });
-        MakeTurn({ Direction::Vertical, 1, false });
+        MakeMultiLayerTurn({
+            { Direction::Vertical, 0, false },
+            { Direction::Vertical, 1, false }
+        });
         break;
+    }
     case Move::l_:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Vertical, 0, true });
-        MakeTurn({ Direction::Vertical, 1, true });
+        MakeMultiLayerTurn({
+            { Direction::Vertical, 0, true },
+            { Direction::Vertical, 1, true }
+        });
         break;
+    }
     case Move::D:
+    {
         MakeTurn({ Direction::Horizontal, 0, false });
         break;
+    }
     case Move::D2:
+    {
         MakeTurn({ Direction::Horizontal, 0, false });
         MakeTurn({ Direction::Horizontal, 0, false });
         break;
+    }
     case Move::D_:
+    {
         MakeTurn({ Direction::Horizontal, 0, true });
         break;
+    }
     case Move::d:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Horizontal, 0, false });
-        MakeTurn({ Direction::Horizontal, 1, false });
+        MakeMultiLayerTurn({
+            { Direction::Horizontal, 0, false },
+            { Direction::Horizontal, 1, false }
+        });
         break;
+    }
     case Move::d_:
+    {
         if (m_Layers < 3)
             break;
 
-        MakeTurn({ Direction::Horizontal, 0, true });
-        MakeTurn({ Direction::Horizontal, 1, true });
+        MakeMultiLayerTurn({
+            { Direction::Horizontal, 0, true },
+            { Direction::Horizontal, 1, true }
+        });
         break;
+    }
     case Move::M:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Vertical, m_Layers / 2, false });
         break;
+    }
     case Move::M2:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Vertical, m_Layers / 2, false });
         MakeTurn({ Direction::Vertical, m_Layers / 2, false });
         break;
+    }
     case Move::M_:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Vertical, m_Layers / 2, true });
         break;
+    }
     case Move::E:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Horizontal, m_Layers / 2, false });
         break;
+    }
     case Move::E2:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Horizontal, m_Layers / 2, false });
         MakeTurn({ Direction::Horizontal, m_Layers / 2, false });
         break;
+    }
     case Move::E_:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Horizontal, m_Layers / 2, true });
         break;
+    }
     case Move::S:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Depthical, m_Layers / 2, true });
         break;
+    }
     case Move::S2:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Depthical, m_Layers / 2, true });
         MakeTurn({ Direction::Depthical, m_Layers / 2, true });
         break;
+    }
     case Move::S_:
+    {
         if (m_Layers % 2 == 0)
             return;
 
         MakeTurn({ Direction::Depthical, m_Layers / 2, false });
         break;
+    }
     case Move::x:
+    {
+        std::vector<Turn> turns;
+        
+        turns.reserve(m_Layers);
         for (uint32_t i = 0; i < m_Layers; i++)
-            MakeTurn({ Direction::Vertical, i, true });
+            turns.emplace_back(Direction::Vertical, i, true);
 
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::x2:
+    {
+        std::vector<Turn> turns;
+
+        turns.reserve(m_Layers);
         for (uint32_t i = 0; i < m_Layers; i++)
-        {
-            MakeTurn({ Direction::Vertical, i, true });
-            MakeTurn({ Direction::Vertical, i, true });
-        }
+            turns.emplace_back(Direction::Vertical, i, true);
+
+        MakeMultiLayerTurn(turns);
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::x_:
-        for (uint32_t i = 0; i < m_Layers; i++)
-            MakeTurn({ Direction::Vertical, i, false });
+    {
+        std::vector<Turn> turns;
 
+        turns.reserve(m_Layers);
+        for (uint32_t i = 0; i < m_Layers; i++)
+            turns.emplace_back(Direction::Vertical, i, false);
+
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::y:
-        for (uint32_t i = 0; i < m_Layers; i++)
-            MakeTurn({ Direction::Horizontal, i, true });
+    {
+        std::vector<Turn> turns;
 
+        turns.reserve(m_Layers);
+        for (uint32_t i = 0; i < m_Layers; i++)
+            turns.emplace_back(Direction::Horizontal, i, true);
+
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::y2:
+    {
+        std::vector<Turn> turns;
+
+        turns.reserve(m_Layers);
         for (uint32_t i = 0; i < m_Layers; i++)
-        {
-            MakeTurn({ Direction::Horizontal, i, true });
-            MakeTurn({ Direction::Horizontal, i, true });
-        }
+            turns.emplace_back(Direction::Horizontal, i, true);
+
+        MakeMultiLayerTurn(turns);
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::y_:
-        for (uint32_t i = 0; i < m_Layers; i++)
-            MakeTurn({ Direction::Horizontal, i, false });
+    {
+        std::vector<Turn> turns;
 
+        turns.reserve(m_Layers);
+        for (uint32_t i = 0; i < m_Layers; i++)
+            turns.emplace_back(Direction::Horizontal, i, false);
+
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::z:
-        for (uint32_t i = 0; i < m_Layers; i++)
-            MakeTurn({ Direction::Depthical, i, true });
+    {
+        std::vector<Turn> turns;
 
+        turns.reserve(m_Layers);
+        for (uint32_t i = 0; i < m_Layers; i++)
+            turns.emplace_back(Direction::Depthical, i, true);
+
+        MakeMultiLayerTurn(turns);
         break;
+    }
     case Move::z2:
-        for (uint32_t i = 0; i < m_Layers; i++)
-        {
-            MakeTurn({ Direction::Depthical, i, true });
-            MakeTurn({ Direction::Depthical, i, true });
-        }
-        break;
-    case Move::z_:
-        for (uint32_t i = 0; i < m_Layers; i++)
-            MakeTurn({ Direction::Depthical, i, false });
+    {
+        std::vector<Turn> turns;
 
+        turns.reserve(m_Layers);
+        for (uint32_t i = 0; i < m_Layers; i++)
+            turns.emplace_back(Direction::Depthical, i, true);
+
+        MakeMultiLayerTurn(turns);
+        MakeMultiLayerTurn(turns);
         break;
+    }
+    case Move::z_:
+    {
+        std::vector<Turn> turns;
+
+        turns.reserve(m_Layers);
+        for (uint32_t i = 0; i < m_Layers; i++)
+            turns.emplace_back(Direction::Depthical, i, false);
+
+        MakeMultiLayerTurn(turns);
+        break;
+    }
     }
 }
 
@@ -543,12 +696,14 @@ auto Cube::Update(float deltaTime) -> void
     do
     {
         AxialRotation& rotation = m_Rotations.front();
-        auto indices = _GetIndicesByTurn(rotation.GetTurn());
-        if (rotation.Update(rotationAngle, _GetPiecesByIndices(indices)))
+        if (rotation.Update(rotationAngle))
         {
-            auto newPieces = _GetPieceClonesByIndices(_GetIndicesByTurnInversed(rotation.GetTurn()));
-            _SetPiecesByIndices(indices, newPieces);
-
+            for (auto& turn : rotation.GetTurns())
+            {
+                auto indices = _GetIndicesByTurn(turn);
+                auto newPieces = _GetPieceClonesByIndices(_GetIndicesByTurnInversed(turn));
+                _SetPiecesByIndices(indices, newPieces);
+            }
             m_Rotations.pop();
         }
     }
@@ -576,7 +731,22 @@ auto Cube::MakeTurn(const Turn& turn) -> void
 
     _SetPieceColorsByIndices(indices, newPieceColors);
 
-    m_Rotations.emplace(turn);
+    m_Rotations.emplace(*this, std::vector<Turn>{ turn });
+}
+auto Cube::MakeMultiLayerTurn(const std::vector<Turn>& turns) -> void
+{
+    for (const auto& turn : turns)
+    {
+        auto indices = _GetIndicesByTurn(turn);
+        auto indicesInversed = _GetIndicesByTurnInversed(turn);
+
+        auto newPieceColors = _GetPieceColorsClonesByIndices(indicesInversed);
+        for (auto& colors : newPieceColors)
+            colors.HandleRotation(turn.LayerType, turn.Clockwise);
+
+        _SetPieceColorsByIndices(indices, newPieceColors);
+    }
+    m_Rotations.emplace(*this, turns);
 }
 
 auto Cube::_GetIndicesByTurn(const Turn& turn) const -> std::vector<PieceLocation>
