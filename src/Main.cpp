@@ -5,7 +5,7 @@
 
 #include <array>
 
-constexpr float WINDOW_SCALE = 1.0f;
+constexpr float WINDOW_SCALE = 2.0f;
 
 constexpr uint32_t WINDOW_WIDTH = 800 * WINDOW_SCALE;
 constexpr uint32_t WINDOW_HEIGHT = 600 * WINDOW_SCALE;
