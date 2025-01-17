@@ -5,13 +5,22 @@
 
 #include <array>
 
+constexpr float WINDOW_SCALE = 1.0f;
+
+constexpr uint32_t WINDOW_WIDTH = 800 * WINDOW_SCALE;
+constexpr uint32_t WINDOW_HEIGHT = 600 * WINDOW_SCALE;
+constexpr uint32_t WINDOW_PADDING = 10 * WINDOW_SCALE;
+constexpr uint32_t TEXT_SIZE = 14 * WINDOW_SCALE;
+
 auto CheckMoves(Cube& cube) -> void;
 auto RecreteCubeAndSolver(Cube* cube, uint32_t cubeSize, CubeSolver* solver) -> void;
 
 int main()
 {
-    InitWindow(1600, 1200, "Rubix Cube");
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     SetTargetFPS(120);
+
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Rubix Cube");
 
     Camera camera = {
         .position = { 0.0f, 0.0f, 7.0f },
@@ -30,11 +39,11 @@ int main()
     std::array<std::string, 7> texts = {
         "U/F/R/B/L/D/M/E/S: CW turns",
         "SHIFT+U/F/R/B/L/D/M/E/S: CCW turns",
-        "SPACE: scramble cube",
-        "ENTER: solve cube",
-        "TAB: toggle rotation anim.",
-        "UP/DOWN: change anim. speed",
+        "UP/DOWN: change animation speed",
+        "TAB: toggle rotation animation",
         "LEFT/RIGHT: change cube size",
+        "SPACE: scramble cube",
+        "ENTER: solve cube"
     };
 
     while (!WindowShouldClose())
@@ -92,7 +101,7 @@ int main()
         EndMode3D();
 
         for (uint32_t i = 0; i < texts.size(); i++)
-            DrawText(texts[i].c_str(), 20, 20 + 28 * i, 28, GRAY);
+            DrawText(texts[i].c_str(), WINDOW_PADDING, WINDOW_PADDING + TEXT_SIZE * i, TEXT_SIZE, GRAY);
 
         EndDrawing();
     }

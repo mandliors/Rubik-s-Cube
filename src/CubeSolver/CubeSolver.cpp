@@ -5,290 +5,361 @@
 
 const std::array<Algorithm, 7> CubeSolver::s_2x2_OLLs = {
     Algorithm {
-        .Pattern = ColorPattern { "NYNYNNNY" },
+        .Pattern = ColorPattern { "DBDBDDDB" },
         .Moves = "L' U2 L U L' U L"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNYNNNYN" },
+        .Pattern = ColorPattern { "BDBDDDBD" },
         .Moves = "R U2 R' U' R U' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNNNNYNN" },
+        .Pattern = ColorPattern { "BDDDDBDD" },
         .Moves = "R U R' U' R' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNYYNN" },
+        .Pattern = ColorPattern { "BBDDBBDD" },
         .Moves = "R2 U2 R U2 R2"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNYNYY" },
+        .Pattern = ColorPattern { "DBDDBDBB" },
         .Moves = "F R U R' U' R U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNNYN" },
+        .Pattern = ColorPattern { "DBDDDDBD" },
         .Moves = "F' R U R' U' R' F R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNNNNNYY" },
+        .Pattern = ColorPattern { "DDDDDDBB" },
         .Moves = "F R U R' U' F'"
     }
 };
 
-const std::array<Algorithm, 6> CubeSolver::s_2x2_PLLs = {
+const std::array<Algorithm, 2> CubeSolver::s_2x2_PLLs = {
     Algorithm {
-        .Pattern = ColorPattern { "GBROBGOR" },
+        .Pattern = ColorPattern { "LOLOLOLO" },
         .Moves = "F R U' R' U' R U R' F' R U R' U' R' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "GOBGOBRR" },
+        .Pattern = ColorPattern { "LLLOLLLS" },
         .Moves = "R U R' U' R' F R2 U' R' U' R U R' F'"
-    },
-    Algorithm {
-        .Pattern = ColorPattern { "OBROBRGG" },
-        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F' U'"
-    },
-    Algorithm {
-        .Pattern = ColorPattern { "BRGBRGOO" },
-        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F' U2"
-    },
-    Algorithm {
-        .Pattern = ColorPattern { "RGORGOBB" },
-        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F' U"
-    },
-    Algorithm {
-        .Pattern = ColorPattern { "GGOOBBRR" },
-        .Moves = ""
     }
 };
 
 const std::array<Algorithm, 57> CubeSolver::s_3x3_OLLs = {
     Algorithm {
-        .Pattern = ColorPattern { "NYNYYYNYNYYY" },
+        .Pattern = ColorPattern { "DBDBBBDBDBBB" },
         .Moves = "R U2 R2 F R F' U2 R' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYNYYNYYY" },
+        .Pattern = ColorPattern { "DBBDBDBBDBBB" },
         .Moves = "F R U R' U' S R U R' U' f'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYYNYNNYY" },
+        .Pattern = ColorPattern { "DBBDBBDBDDBB" },
         .Moves = "F U R U' R' F' U F R U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNYNYYNYYN" },
+        .Pattern = ColorPattern { "BBDDBDBBDBBD" },
         .Moves = "M U' r U2 r' U' R U' R' M'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYYNNNNNY" },
+        .Pattern = ColorPattern { "DBBDBBDDDDDB" },
         .Moves = "l' U2 L U L' U l"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNYNNNNNYYN" },
+        .Pattern = ColorPattern { "BBDBDDDDDBBD" },
         .Moves = "r U2 R' U' R U' r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYYNNYNNN" },
+        .Pattern = ColorPattern { "DBBDBBDDBDDD" },
         .Moves = "r U R' U R U2 r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNNNYNNYYN" },
+        .Pattern = ColorPattern { "BBDDDDBDDBBD" },
         .Moves = "l' U' L U' L' U2 l"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNYNYNNYNN" },
+        .Pattern = ColorPattern { "BBDDBDBDDBDD" },
         .Moves = "R U R' U' R' F R2 U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNYNYNNYYNNY" },
+        .Pattern = ColorPattern { "DDBDBDDBBDDB" },
         .Moves = "R U R' U R' F R F' R U2 R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYNNNYNNY" },
+        .Pattern = ColorPattern { "DBBDBDDDBDDB" },
         .Moves = "r U R' U R' F R F' R U2 r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNYNNYNNNYN" },
+        .Pattern = ColorPattern { "BBDBDDBDDDBD" },
         .Moves = "M' R' U' R U' R' U2 R U' R r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNNYNYYNNN" },
+        .Pattern = ColorPattern { "DBBDDBDBBDDD" },
         .Moves = "F U R U' R2 F' R U R U' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNNNYYNYNN" },
+        .Pattern = ColorPattern { "BBDDDDBBDBDD" },
         .Moves = "R' F R U R' F' R F U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNNYNYNNNY" },
+        .Pattern = ColorPattern { "DBBDDBDBDDDB" },
         .Moves = "l' U' l L' U' L U l' U l"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNYNNNYNYNN" },
+        .Pattern = ColorPattern { "BBDBDDDBDBDD" },
         .Moves = "r U r' R U R' U' r U' r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNYYNYNNYN" },
+        .Pattern = ColorPattern { "BBDDBBDBDDBD" },
         .Moves = "F R' F' R2 r' U R U' R' U' M'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYYNYNNYNNYN" },
+        .Pattern = ColorPattern { "BBBDBDDBDDBD" },
         .Moves = "r U R' U R U2 r r U' R U' R' U2 r"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNYYNNYNNYY" },
+        .Pattern = ColorPattern { "DBDBBDDBDDBB" },
         .Moves = "r' R U R U R' U' M' R' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNYNNYNNYN" },
+        .Pattern = ColorPattern { "DBDDBDDBDDBD" },
         .Moves = "r U R' U' M2 U R U' R' U' M'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNYNNNYNYNNN" },
+        .Pattern = ColorPattern { "BDBDDDBDBDDD" },
         .Moves = "R U2 R' U' R U R' U' R U' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNYNNNYNNYNY" },
+        .Pattern = ColorPattern { "DDBDDDBDDBDB" },
         .Moves = "R U2 R2 U' R2 U' R2 U2 R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNNNNNYNYNNN" },
+        .Pattern = ColorPattern { "DDDDDDBDBDDD" },
         .Moves = "R2 D' R U2 R' D R U2 R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNNNNNNNYNNN" },
+        .Pattern = ColorPattern { "BDDDDDDDBDDD" },
         .Moves = "r U R' U' r' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNYNNNNNNYNN" },
+        .Pattern = ColorPattern { "DDBDDDDDDBDD" },
         .Moves = "F' r U R' U' r' F R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNNYNNNNNYNN" },
+        .Pattern = ColorPattern { "BDDBDDDDDBDD" },
         .Moves = "R U2 R' U' R U' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNYNNYNNYNNN" },
+        .Pattern = ColorPattern { "DDBDDBDDBDDD" },
         .Moves = "R U R' U R U2 R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNYNNNNNNN" },
+        .Pattern = ColorPattern { "DBDDBDDDDDDD" },
         .Moves = "r U R' U' r' R U R U' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNYNNNYNNN" },
+        .Pattern = ColorPattern { "BBDDBDDDBDDD" },
         .Moves = "R U R' U' R U' R' F' U' F R U R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNYYNNNYNN" },
+        .Pattern = ColorPattern { "DBDDBBDDDBDD" },
         .Moves = "F R' F R2 U' R' U' R U R' F2"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNNNNNYNYN" },
+        .Pattern = ColorPattern { "BBDDDDDDBDBD" },
         .Moves = "R' U' F U R U' R' F' R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYNYNNNNN" },
+        .Pattern = ColorPattern { "DBBDBDBDDDDD" },
         .Moves = "L U F' U' L' U L F L'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNNNNYYNNN" },
+        .Pattern = ColorPattern { "BBDDDDDBBDDD" },
         .Moves = "R U R' U' R' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNYNYNYNN" },
+        .Pattern = ColorPattern { "DBDDDBDBDBDD" },
         .Moves = "R U R2 U' R' F R U R U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNNNNYNYNNYN" },
+        .Pattern = ColorPattern { "BDDDDBDBDDBD" },
         .Moves = "R U2 R2 F R F' R U2 R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNNYNNNYY" },
+        .Pattern = ColorPattern { "DBDDDDBDDDBB" },
         .Moves = "L' U' L U' L' U L U L F' L' F"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNNYYNNNNNN" },
+        .Pattern = ColorPattern { "BBDDBBDDDDDD" },
         .Moves = "F R' F' R U R U' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNYYNNNYNNN" },
+        .Pattern = ColorPattern { "DBDBBDDDBDDD" },
         .Moves = "R U R' U R U' R' U' R' F R F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNYNNNYYNNN" },
+        .Pattern = ColorPattern { "DBDBDDDBBDDD" },
         .Moves = "L F' L' U' L U F U' L'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNNYYNNNY" },
+        .Pattern = ColorPattern { "DBDDDDBBDDDB" },
         .Moves = "R' F R U R' U' F' U R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNYNYNYNNN" },
+        .Pattern = ColorPattern { "DBDDBDBDBDDD" },
         .Moves = "R U R' U R U2 R' F R U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNYNYNNYNNNN" },
+        .Pattern = ColorPattern { "BDBDBDDBDDDD" },
         .Moves = "R' U' R U' R' U2 R F R U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNNNNNYYY" },
+        .Pattern = ColorPattern { "DBDDDDDDDBBB" },
         .Moves = "F' U' L' U L F"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNYYYNNNNNN" },
+        .Pattern = ColorPattern { "DBDBBBDDDDDD" },
         .Moves = "F U R U' R' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNNNYNYNY" },
+        .Pattern = ColorPattern { "DBDDDDDBDBDB" },
         .Moves = "F R U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNNYYYNNNNYN" },
+        .Pattern = ColorPattern { "DDDBBBDDDDBD" },
         .Moves = "R' U' R' F R F' U R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNYNYNNYNYN" },
+        .Pattern = ColorPattern { "BBDBDBDDBDBD" },
         .Moves = "R' U' R' F R F' R' F R F' U R"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNYNYNNYNY" },
+        .Pattern = ColorPattern { "DBBDBDBDDBDB" },
         .Moves = "F R U R' U' R U R' U' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYYNNNYNNYYY" },
+        .Pattern = ColorPattern { "DBBDDDBDDBBB" },
         .Moves = "r U' r r U r r U r r U' r"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NNYNNNYYNYYY" },
+        .Pattern = ColorPattern { "DDBDDDBBDBBB" },
         .Moves = "r' U r r U' r r U' r r U r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYNYNYNYYNNN" },
+        .Pattern = ColorPattern { "BBDBDBDBBDDD" },
         .Moves = "F U R U' R' U R U' R' F'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YNNYYYNNYNYN" },
+        .Pattern = ColorPattern { "BDDBBBDDBDBD" },
         .Moves = "R U R' U R U' B U' B' R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYYNNNYNYNYN" },
+        .Pattern = ColorPattern { "BBBDDDBDBDBD" },
         .Moves = "l' U2 L U L' U' L U L' U l"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYYNYNYNYNNN" },
+        .Pattern = ColorPattern { "BBBDBDBDBDDD" },
         .Moves = "r U2 R' U' R U R' U' R U' r'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "YYYNNNYYYNNN" },
+        .Pattern = ColorPattern { "BBBDDDBBBDDD" },
         .Moves = "R' F R U R U' R2 F' R2 U' R' U R U R'"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNYNYNYNYNY" },
+        .Pattern = ColorPattern { "DBDBDBDBDBDB" },
         .Moves = "r' U' r U' R' U R U' R' U R r' U r"
     },
     Algorithm {
-        .Pattern = ColorPattern { "NYNNNNNYNNNN" },
+        .Pattern = ColorPattern { "DBDDDDDBDDDD" },
         .Moves = "R U R' U' M' U R U' r'"
+    }
+};
+
+const std::array<Algorithm, 21> CubeSolver::s_3x3_PLLs = {
+    Algorithm {
+        .Pattern = ColorPattern { "LLSLSOLORLLR" },
+        .Moves = "x L2 D2 L' U' L D2 L' U L' x'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LROLOSLSLLRL" },
+        .Moves = "x' L2 D2 L U L' D2 L U' L x"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LORLRRLROLSS" },
+        .Moves = "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LLSLLLLROLRL" },
+        .Moves = "R2 U R' U R' U' R U' R2 U' D R' U R D'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LORLOSLORLOO" },
+        .Moves = "R' U' R U D' R2 U R' U R U' R U' R2 D"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LORLLLLSLLLR" },
+        .Moves = "R2 U' R U' R U R' U R2 U D' R U' R' D"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LROLSOLROLOO" },
+        .Moves = "R U R' U' D R2 U' R U' R' U R' U R2 D'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LSLLSOLSLLSS" },
+        .Moves = "x R2 F R F' R U2 r' U r U2 x'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LLSLOSLLSLSS" },
+        .Moves = "R U R' F' R U R' U' R' F R2 U' R'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LSLLRRLORLRL" },
+        .Moves = "R U' R' U' R U R D R' U' R D' R' U2 R'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LROLRRLLSLLR" },
+        .Moves = "R2 F R U R U' R' F' R U2 R' U2 R"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LSLLLLLLSLOO" },
+        .Moves = "R U R' U' R' F R2 U' R' U' R U R' F'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LLLLRRLLLLRR" },
+        .Moves = "x' L' U L D' L' U' L D L' U' L D' L' U L D x"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LOSLOSLOSLOS" },
+        .Moves = "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LSOLSOLSOLSO" },
+        .Moves = "R' U R U' R' F' U' F R U R' F R' F' R U' R"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LSOLRRLRRLOS" },
+        .Moves = "R' U R' U' y R' F' R2 U' R' U R' F R F y'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LSOLOSLLLLLL" },
+        .Moves = "F R U' R' U' R U R' F' R U R' U' R' F R F'"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LOOLOOLOOLOO" },
+        .Moves = "M2 U M2 U2 M2 U M2"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LLRLOOLSSLLR" },
+        .Moves = "M2 U M U2 M' U M2"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LRLLRLLSSLOO" },
+        .Moves = "M2 U' M U2 M' U' M2"
+    },
+    Algorithm {
+        .Pattern = ColorPattern { "LRLLLRLRLLLR" },
+        .Moves = "M' U M2 U M2 U M' U2 M2"
     }
 };
 
@@ -318,8 +389,8 @@ auto CubeSolver::_Solve2x2() -> void
     _SolveCorner(FaceColor::White, FaceColor::Red, FaceColor::Blue, { 0, 0, 0 }, FaceColor::White);
 
     _SolveOLL(s_2x2_OLLs, FaceColor::Yellow);
-
     _SolvePLL(s_2x2_PLLs);
+    _SolveAUF();
 }
 auto CubeSolver::_Solve3x3() -> void
 {
@@ -344,6 +415,8 @@ auto CubeSolver::_Solve3x3() -> void
     _SolveEdgeToSecondLayer(FaceColor::Red, FaceColor::Green, { 0, 1, lastLayerIndex });
 
     _SolveOLL(s_3x3_OLLs, FaceColor::Yellow);
+    _SolvePLL(s_3x3_PLLs);
+    _SolveAUF();
 }
 
 
@@ -403,7 +476,7 @@ auto CubeSolver::_SolveEdgeToSecondLayer(FaceColor color1, FaceColor color2, Pie
 }
 auto CubeSolver::_SolveOLL(const std::span<const Algorithm>& OLLs, FaceColor faceColor) -> void
 {
-    ColorPattern OLLPattern = ColorPattern::CreateFromTopLayerWithBaseColor(m_Cube, faceColor);
+    ColorPattern OLLPattern = ColorPattern::CreateOLLPatternFromTopLayer(m_Cube, faceColor);
     for (const auto& OLL : OLLs)
     {
         uint32_t match = OLLPattern.Match(OLL.Pattern);
@@ -420,7 +493,7 @@ auto CubeSolver::_SolveOLL(const std::span<const Algorithm>& OLLs, FaceColor fac
 }
 auto CubeSolver::_SolvePLL(const std::span<const Algorithm>& PLLs) -> void
 {
-    ColorPattern PLLPattern = ColorPattern::CreateFromTopLayer(m_Cube);
+    ColorPattern PLLPattern = ColorPattern::CreatePLLPatternFromTopLayer(m_Cube);
     for (const auto& PLL : PLLs)
     {
         uint32_t match = PLLPattern.Match(PLL.Pattern);
@@ -433,6 +506,32 @@ auto CubeSolver::_SolvePLL(const std::span<const Algorithm>& PLLs) -> void
             m_Cube.MakeMoves(PLL.Moves);
             break;
         }
+    }
+}
+auto CubeSolver::_SolveAUF() -> void
+{
+    uint32_t last = m_Cube.GetSize() - 1;
+    uint32_t half = last / 2;
+
+    FaceColor topCol = m_Cube.GetPieceColors({ half, last, last }).value().get()[Face::Front];
+    FaceColor faceCol = m_Cube.GetPieceColors({ half, half, last }).value().get()[Face::Front];
+
+    ColorPattern::ColorDescriptor desc = ColorPattern::CreateDescriptorFromTwoColors(topCol, faceCol);
+
+    switch (desc)
+    {
+    case ColorPattern::ColorDescriptor::LEFT_NEIGHBOR:
+        m_Cube.MakeMove(Move::U);
+        break;
+    case ColorPattern::ColorDescriptor::RIGHT_NEIGHBOR:
+        m_Cube.MakeMove(Move::U_);
+        break;
+    case ColorPattern::ColorDescriptor::OPPOSITE:
+        m_Cube.MakeMove(Move::U2);
+        break;
+    
+    default:
+        break;
     }
 }
 

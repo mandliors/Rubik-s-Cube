@@ -9,26 +9,23 @@ ColorPattern::ColorPattern(const std::string& colors)
     {
         switch (color)
         {
-        case 'W':
-            m_Colors.push_back(FaceColor::White);
-            break;
-        case 'Y':
-            m_Colors.push_back(FaceColor::Yellow);
-            break;
-        case 'R':
-            m_Colors.push_back(FaceColor::Red);
-            break;
-        case 'O':
-            m_Colors.push_back(FaceColor::Orange);
-            break;
-        case 'G':
-            m_Colors.push_back(FaceColor::Green);
+        case 'D':
+            m_Colors.push_back(ColorDescriptor::DONT_CARE);
             break;
         case 'B':
-            m_Colors.push_back(FaceColor::Blue);
+            m_Colors.push_back(ColorDescriptor::BASE_COLOR);
             break;
-        default:
-            m_Colors.push_back(FaceColor::None);
+        case 'S':
+            m_Colors.push_back(ColorDescriptor::SAME);
+            break;
+        case 'L':
+            m_Colors.push_back(ColorDescriptor::LEFT_NEIGHBOR);
+            break;
+        case 'R':
+            m_Colors.push_back(ColorDescriptor::RIGHT_NEIGHBOR);
+            break;
+        case 'O':
+            m_Colors.push_back(ColorDescriptor::OPPOSITE);
             break;
         }
     }
@@ -63,52 +60,185 @@ auto ColorPattern::Match(const ColorPattern& other) const -> uint32_t
     return 5;
 }
 
-auto ColorPattern::CreateFromTopLayer(const Cube& cube) -> ColorPattern
+auto ColorPattern::CreateOLLPatternFromTopLayer(const Cube& cube, FaceColor OLLColor) -> ColorPattern
 {
-    std::vector<FaceColor> colors;
+    std::vector<ColorDescriptor> colors;
     uint32_t size = cube.GetSize();
     colors.reserve(size * 4);
 
     // front face
     for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ i, size - 1, size - 1 }).value().get()[Face::Front]);
+        colors.push_back(cube.GetPieceColors({ i, size - 1, size - 1 }).value().get()[Face::Front] == OLLColor ? ColorDescriptor::BASE_COLOR : ColorDescriptor::DONT_CARE);
 
     // right face
     for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ size - 1, size - 1, size - 1 - i }).value().get()[Face::Right]);
+        colors.push_back(cube.GetPieceColors({ size - 1, size - 1, size - 1 - i }).value().get()[Face::Right] == OLLColor ? ColorDescriptor::BASE_COLOR : ColorDescriptor::DONT_CARE);
 
     // back face
     for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ size - 1 - i, size - 1, 0 }).value().get()[Face::Back]);
+        colors.push_back(cube.GetPieceColors({ size - 1 - i, size - 1, 0 }).value().get()[Face::Back] == OLLColor ? ColorDescriptor::BASE_COLOR : ColorDescriptor::DONT_CARE);
 
     // left face
     for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ 0, size - 1, i }).value().get()[Face::Left]);
+        colors.push_back(cube.GetPieceColors({ 0, size - 1, i }).value().get()[Face::Left] == OLLColor ? ColorDescriptor::BASE_COLOR : ColorDescriptor::DONT_CARE);
 
-    return ColorPattern(colors);
+    return ColorPattern{ colors };
 }
 
-auto ColorPattern::CreateFromTopLayerWithBaseColor(const Cube& cube, FaceColor baseColor) -> ColorPattern
+auto ColorPattern::CreatePLLPatternFromTopLayer(const Cube& cube) -> ColorPattern
 {
-    std::vector<FaceColor> colors;
+    std::vector<ColorDescriptor> colors;
     uint32_t size = cube.GetSize();
     colors.reserve(size * 4);
 
     // front face
-    for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ i, size - 1, size - 1 }).value().get()[Face::Front] == baseColor ? baseColor : FaceColor::None);
+    colors.push_back(
+        CreateDescriptorFromTwoColors(
+            cube.GetPieceColors({ 0, size - 1, size - 1 }).value().get()[Face::Left],
+            cube.GetPieceColors({ 0, size - 1, size - 1 }).value().get()[Face::Front]
+        )
+    );
+    for (uint32_t i = 1; i < size; i++)
+    {
+        colors.push_back(
+            CreateDescriptorFromTwoColors(
+                cube.GetPieceColors({ i - 1, size - 1, size - 1 }).value().get()[Face::Front],
+                cube.GetPieceColors({ i    , size - 1, size - 1 }).value().get()[Face::Front]
+            )
+        );
+    }
 
     // right face
-    for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ size - 1, size - 1, size - 1 - i }).value().get()[Face::Right] == baseColor ? baseColor : FaceColor::None);
+    colors.push_back(
+        CreateDescriptorFromTwoColors(
+            cube.GetPieceColors({ size - 1, size - 1, size - 1 }).value().get()[Face::Front],
+            cube.GetPieceColors({ size - 1, size - 1, size - 1 }).value().get()[Face::Right]
+        )
+    );
+    for (uint32_t i = 1; i < size; i++)
+    {
+        colors.push_back(
+            CreateDescriptorFromTwoColors(
+                cube.GetPieceColors({ size - 1, size - 1, size - 1 - i + 1 }).value().get()[Face::Right],
+                cube.GetPieceColors({ size - 1, size - 1, size - 1 - i     }).value().get()[Face::Right]
+            )
+        );
+    }
 
     // back face
-    for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ size - 1 - i, size - 1, 0 }).value().get()[Face::Back] == baseColor ? baseColor : FaceColor::None);
+    colors.push_back(
+        CreateDescriptorFromTwoColors(
+            cube.GetPieceColors({ size - 1, size - 1, 0 }).value().get()[Face::Right],
+            cube.GetPieceColors({ size - 1, size - 1, 0 }).value().get()[Face::Back]
+        )
+    );
+    for (uint32_t i = 1; i < size; i++)
+    {
+        colors.push_back(
+            CreateDescriptorFromTwoColors(
+                cube.GetPieceColors({ size - 1 - i + 1, size - 1, 0 }).value().get()[Face::Back],
+                cube.GetPieceColors({ size - 1 - i    , size - 1, 0 }).value().get()[Face::Back]
+            )
+        );
+    }
 
     // left face
-    for (uint32_t i = 0; i < size; i++)
-        colors.push_back(cube.GetPieceColors({ 0, size - 1, i }).value().get()[Face::Left] == baseColor ? baseColor : FaceColor::None);
+    colors.push_back(
+        CreateDescriptorFromTwoColors(
+            cube.GetPieceColors({ 0, size - 1, 0 }).value().get()[Face::Back],
+            cube.GetPieceColors({ 0, size - 1, 0 }).value().get()[Face::Left]
+        )
+    );
+    for (uint32_t i = 1; i < size; i++)
+    {
+        colors.push_back(
+            CreateDescriptorFromTwoColors(
+                cube.GetPieceColors({ 0, size - 1, i - 1 }).value().get()[Face::Left],
+                cube.GetPieceColors({ 0, size - 1, i     }).value().get()[Face::Left]
+            )
+        );
+    }
 
-    return ColorPattern(colors);
+    return ColorPattern{ colors };
+}
+
+auto ColorPattern::CreateDescriptorFromTwoColors(FaceColor left, FaceColor right) -> ColorDescriptor
+{
+    switch (left)
+    {
+    case FaceColor::Green:
+        switch (right)
+        {
+        case FaceColor::Green:
+            return ColorDescriptor::SAME;
+        case FaceColor::Red:
+            return ColorDescriptor::RIGHT_NEIGHBOR;
+        case FaceColor::Blue:
+            return ColorDescriptor::OPPOSITE;
+        case FaceColor::Orange:
+            return ColorDescriptor::LEFT_NEIGHBOR;
+        
+        default:
+            return ColorDescriptor::DONT_CARE;
+        }
+        break;
+
+    case FaceColor::Red:
+        switch (right)
+        {
+        case FaceColor::Green:
+            return ColorDescriptor::LEFT_NEIGHBOR;
+        case FaceColor::Red:
+            return ColorDescriptor::SAME;
+        case FaceColor::Blue:
+            return ColorDescriptor::RIGHT_NEIGHBOR;
+        case FaceColor::Orange:
+            return ColorDescriptor::OPPOSITE;
+        
+        default:
+            return ColorDescriptor::DONT_CARE;
+        }
+        break;
+
+    case FaceColor::Blue:
+        switch (right)
+        {
+        case FaceColor::Green:
+            return ColorDescriptor::OPPOSITE;
+        case FaceColor::Red:
+            return ColorDescriptor::LEFT_NEIGHBOR;
+        case FaceColor::Blue:
+            return ColorDescriptor::SAME;
+        case FaceColor::Orange:
+            return ColorDescriptor::RIGHT_NEIGHBOR;
+        
+        default:
+            return ColorDescriptor::DONT_CARE;
+        }
+        break;
+
+    case FaceColor::Orange:
+        switch (right)
+        {
+        case FaceColor::Green:
+            return ColorDescriptor::RIGHT_NEIGHBOR;
+        case FaceColor::Red:
+            return ColorDescriptor::OPPOSITE;
+        case FaceColor::Blue:
+            return ColorDescriptor::LEFT_NEIGHBOR;
+        case FaceColor::Orange:
+            return ColorDescriptor::SAME;
+        
+        default:
+            return ColorDescriptor::DONT_CARE;
+        }
+        break;
+
+    case FaceColor::White:
+    case FaceColor::Yellow:
+    case FaceColor::None:
+        return ColorDescriptor::DONT_CARE;
+    }
+
+    std::unreachable();
 }
