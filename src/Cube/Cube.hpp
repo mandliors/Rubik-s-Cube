@@ -33,6 +33,7 @@ public:
     auto Scramble() -> void;
     auto IsSolved() const -> bool;
 
+    inline auto SetSize(uint32_t size) -> void { m_Layers = size; Reset(); }
     inline auto GetSize() const -> uint32_t { return m_Layers; }
     inline auto GetPieceColors(const PieceLocation& location) const -> std::optional<std::reference_wrapper<const PieceColors>>
     {

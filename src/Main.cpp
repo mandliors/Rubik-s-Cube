@@ -1,5 +1,6 @@
 #include "Cube/Cube.hpp"
 #include "CubeSolver/CubeSolver.hpp"
+#include "GUI/GUI.hpp"
 
 #include <raylib.h>
 
@@ -9,7 +10,8 @@ enum class GameState
 {
     MENU = 0,
     PLAYGROUND,
-    DUEL
+    DUEL,
+    EXIT
 };
 
 constexpr float WINDOW_SCALE = 2.0f;
@@ -19,8 +21,9 @@ constexpr uint32_t WINDOW_HEIGHT = static_cast<uint32_t>(600 * WINDOW_SCALE);
 constexpr uint32_t WINDOW_PADDING = static_cast<uint32_t>(10 * WINDOW_SCALE);
 constexpr uint32_t TEXT_SIZE = static_cast<uint32_t>(14 * WINDOW_SCALE);
 
+auto Menu() -> GameState;
 auto Playground(const Camera& camera) -> GameState;
-auto RecreateCubeAndSolver(Cube* cube, uint32_t cubeSize, CubeSolver* solver) -> void;
+auto Duel(const Camera& camera) -> GameState;
 
 int main()
 {
@@ -40,21 +43,13 @@ int main()
 
     GameState state = GameState::MENU;
 
-    while (!WindowShouldClose())
+    while (!WindowShouldClose() && state != GameState::EXIT)
     {
         switch(state)
         {
             case GameState::MENU:
             {
-                if (IsKeyPressed(KEY_ENTER))
-                    state = GameState::PLAYGROUND;
-                else if (IsKeyPressed(KEY_ESCAPE))
-                    CloseWindow();
-
-                BeginDrawing();
-                ClearBackground(Color{ 40, 40, 40, 255 });
-                EndDrawing();
-
+                state = Menu();
                 break;
             }
             case GameState::PLAYGROUND:
@@ -64,8 +59,11 @@ int main()
             }
             case GameState::DUEL:
             {
+                state = Duel(camera);
                 break;
             }
+            default:
+                break;
         } 
     }
 
@@ -74,9 +72,45 @@ int main()
     return 0;
 }
 
+auto Menu() -> GameState
+{
+    GameState nextState = GameState::MENU;
+
+    if (IsKeyPressed(KEY_ESCAPE))
+        nextState = GameState::EXIT;
+
+    BeginDrawing();
+    
+    ClearBackground(Color{ 40, 40, 40, 255 });
+
+    static constexpr uint32_t btnCount = 3;
+    static constexpr uint32_t btnHeight = 100;
+    static constexpr uint32_t btnSpacing = 20;
+    static constexpr uint32_t btnOffset = btnHeight + btnSpacing;
+    
+    uint32_t btnY = WINDOW_HEIGHT / 2 - btnCount * 0.5f * btnOffset;    
+    static gui::State btnStatePlayground = gui::State::NONE;
+    if (gui::Button("Playground", WINDOW_WIDTH / 2, btnY, 400, 100, btnStatePlayground))
+        return GameState::PLAYGROUND;
+
+    btnY += btnOffset;
+    static gui::State btnStateDuel = gui::State::NONE;
+    if (gui::Button("Duel", WINDOW_WIDTH / 2, btnY, 300, 100, btnStateDuel))
+        return GameState::DUEL;
+
+    btnY += btnOffset;
+    static gui::State btnStateExit = gui::State::NONE;
+    if (gui::Button("Exit", WINDOW_WIDTH / 2, btnY, 250, 100, btnStateExit))
+        return GameState::EXIT;
+
+    EndDrawing();
+
+    return nextState;
+}
+
 auto Playground(const Camera& camera) -> GameState
 {
-    static std::array<std::string, 8> texts = {
+    static std::array<std::string, 9> texts = {
         "U/F/R/B/L/D/M/E/S: CW turns",
         "SHIFT+U/F/R/B/L/D/M/E/S: CCW turns",
         "UP/DOWN: change animation speed",
@@ -84,18 +118,21 @@ auto Playground(const Camera& camera) -> GameState
         "LEFT/RIGHT: change cube size",
         "SPACE: scramble cube",
         "ENTER: solve cube",
+        "BACKSPACE: reset sube",
         "ESCAPE: back to menu"
     };
 
-    static uint32_t cubeSize = 3;
-    static Cube cube { cubeSize, { 0, 0, 0 }, 2.0f };
+    static Cube cube { 3, { 0, 0, 0 }, 2.0f };
     static CubeSolver solver { cube };
+
+    GameState nextState = GameState::PLAYGROUND;
 
     // back to menu
     if (IsKeyPressed(KEY_ESCAPE))
     {
         SetWindowTitle("Rubix Cube");
-        return GameState::MENU;
+        cube.Reset();
+        nextState = GameState::MENU;
     }
 
     // moves
@@ -144,10 +181,7 @@ auto Playground(const Camera& camera) -> GameState
 
     // algorithms
     if (IsKeyPressed(KEY_BACKSPACE))
-    {
         cube.Reset();
-        cube.Rotate(0.4f, -0.2f, 0.0f);
-    }
     if (IsKeyPressed(KEY_SPACE))
         cube.Scramble();
     if (IsKeyPressed(KEY_ENTER))
@@ -160,13 +194,15 @@ auto Playground(const Camera& camera) -> GameState
         cube.SetAnimationSpeed(cube.GetAnimationSpeed() * 0.9f);
     if (IsKeyPressed(KEY_LEFT))
     {
+        uint32_t cubeSize = cube.GetSize();
         cubeSize = cubeSize > 2 ? cubeSize - 1 : 2;
-        RecreateCubeAndSolver(&cube, cubeSize, &solver);
+        cube.SetSize(cubeSize);
     }
     if (IsKeyPressed(KEY_RIGHT))
     {
+        uint32_t cubeSize = cube.GetSize();
         cubeSize = cubeSize < 69 ? cubeSize + 1 : 69;
-        RecreateCubeAndSolver(&cube, cubeSize, &solver);
+        cube.SetSize(cubeSize);
     }
 
     // cube rotation
@@ -195,15 +231,102 @@ auto Playground(const Camera& camera) -> GameState
 
     EndMode3D();
 
-    for (uint32_t i = 0; i < texts.size(); i++)
-        DrawText(texts[i].c_str(), WINDOW_PADDING, WINDOW_PADDING + TEXT_SIZE * i, TEXT_SIZE, GRAY);
+    static bool hidden = false;
+    if (gui::Panel("i", 60, 60, 80, 80, hidden))
+    {
+        for (uint32_t i = 0; i < texts.size(); i++)
+            DrawText(texts[i].c_str(), WINDOW_PADDING, WINDOW_PADDING + TEXT_SIZE * i, TEXT_SIZE, GRAY);
+     
+        hidden = true;
+    }
+    else
+        hidden = false;
 
     EndDrawing();
 
-    return GameState::PLAYGROUND;
+    return nextState;
 }
-auto RecreateCubeAndSolver(Cube* cube, uint32_t cubeSize, CubeSolver* solver) -> void
+auto Duel(const Camera& camera) -> GameState
 {
-    *cube = Cube { cubeSize, Vector3{ 0, 0, 0 }, 2.0f };
-    *solver = CubeSolver { *cube };
+    static std::array<std::string, 1> texts = {
+        "U/F/R/B/L/D/M/E/S: CW turns"
+    };
+
+    static Cube cube { 3, { 0, 0, 0 }, 2.0f };
+    static CubeSolver solver { cube };
+
+    GameState nextState = GameState::DUEL;
+
+    // back to menu
+    if (IsKeyPressed(KEY_ESCAPE))
+    {
+        SetWindowTitle("Rubix Cube");
+        cube.Reset();
+        nextState = GameState::MENU;
+    }
+
+    // algorithms
+    if (IsKeyPressed(KEY_BACKSPACE))
+        cube.Reset();
+    if (IsKeyPressed(KEY_LEFT))
+    {
+        uint32_t cubeSize = cube.GetSize();
+        cubeSize = cubeSize > 2 ? cubeSize - 1 : 2;
+        cube.SetSize(cubeSize);
+    }
+    if (IsKeyPressed(KEY_RIGHT))
+    {
+        uint32_t cubeSize = cube.GetSize();
+        cubeSize = cubeSize < 69 ? cubeSize + 1 : 69;
+        cube.SetSize(cubeSize);
+    }
+
+    // cube rotation
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        DisableCursor();
+
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        cube.Rotate(GetMouseDelta().y * 0.003f, GetMouseDelta().x * 0.003f, 0);
+    
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
+        EnableCursor();
+
+    // check if solved
+    if (cube.IsSolved())
+        SetWindowTitle("Rubix Cube [SOLVED]");
+    else
+        SetWindowTitle("Rubix Cube");   
+
+    BeginDrawing();
+    BeginMode3D(camera);
+
+    ClearBackground(Color{ 40, 40, 40, 255 });
+
+    cube.Update(GetFrameTime());
+    cube.Draw();
+
+    EndMode3D();
+
+    static bool hidden = false;
+    std::string scramble = "R U R' B2 F D2 L' U' F R2 U2 D2 L F' B R' F L2";
+    hidden = gui::Panel("i", 60, 60, 80, 80, hidden);
+    if (hidden)
+    {
+        for (uint32_t i = 0; i < texts.size(); i++)
+            DrawText(texts[i].c_str(), WINDOW_PADDING, WINDOW_PADDING + TEXT_SIZE * i, TEXT_SIZE, GRAY);
+    }
+    else
+    {
+        DrawText(
+            scramble.c_str(),
+            WINDOW_WIDTH / 2 - MeasureText(scramble.c_str(), 60) / 2,
+            20,
+            60,
+            WHITE
+        );
+    }
+
+    EndDrawing();
+
+    return nextState;
 }
