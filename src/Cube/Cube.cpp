@@ -420,131 +420,129 @@ auto Cube::MakeMove(Move move) -> void
     }
     }
 }
+auto Cube::MakeMove(std::string_view move) -> void
+{
+    if (isdigit(move[0]))
+    {
+        _MakeBigMove(move);
+        return;
+    }
 
-auto Cube::MakeMoves(std::string_view moveString) -> void
+    if (move == "U")
+        MakeMove(Move::U);
+    else if (move == "U2")
+        MakeMove(Move::U2);
+    else if (move == "U'")
+        MakeMove(Move::U_);
+    else if (move == "u")
+        MakeMove(Move::u);
+    else if (move == "u'")
+        MakeMove(Move::u_);
+    else if (move == "F")
+        MakeMove(Move::F);
+    else if (move == "F2")
+        MakeMove(Move::F2);
+    else if (move == "F'")
+        MakeMove(Move::F_);
+    else if (move == "f")
+        MakeMove(Move::f);
+    else if (move == "f'")
+        MakeMove(Move::f_);
+    else if (move == "R")
+        MakeMove(Move::R);
+    else if (move == "R2")
+        MakeMove(Move::R2);
+    else if (move == "R'")
+        MakeMove(Move::R_);
+    else if (move == "r")
+        MakeMove(Move::r);
+    else if (move == "r'")
+        MakeMove(Move::r_);
+    else if (move == "B")
+        MakeMove(Move::B);
+    else if (move == "B2")
+        MakeMove(Move::B2);
+    else if (move == "B'")
+        MakeMove(Move::B_);
+    else if (move == "b")
+        MakeMove(Move::b);
+    else if (move == "b'")
+        MakeMove(Move::b_);
+    else if (move == "L")
+        MakeMove(Move::L);
+    else if (move == "L2")
+        MakeMove(Move::L2);
+    else if (move == "L'")
+        MakeMove(Move::L_);
+    else if (move == "l")
+        MakeMove(Move::l);
+    else if (move == "l'")
+        MakeMove(Move::l_);
+    else if (move == "D")
+        MakeMove(Move::D);
+    else if (move == "D2")
+        MakeMove(Move::D2);
+    else if (move == "D'")
+        MakeMove(Move::D_);
+    else if (move == "d")
+        MakeMove(Move::d);
+    else if (move == "d'")
+        MakeMove(Move::d_);
+    else if (move == "M")
+        MakeMove(Move::M);
+    else if (move == "M2")
+        MakeMove(Move::M2);
+    else if (move == "M'")
+        MakeMove(Move::M_);
+    else if (move == "E")
+        MakeMove(Move::E);
+    else if (move == "E2")
+        MakeMove(Move::E2);
+    else if (move == "E'")
+        MakeMove(Move::E_);
+    else if (move == "S")
+        MakeMove(Move::S);
+    else if (move == "S2")
+        MakeMove(Move::S2);
+    else if (move == "S'")
+        MakeMove(Move::S_);
+    else if (move == "x")
+        MakeMove(Move::x);
+    else if (move == "x2")
+        MakeMove(Move::x2);
+    else if (move == "x'")
+        MakeMove(Move::x_);
+    else if (move == "y")
+        MakeMove(Move::y);
+    else if (move == "y2")
+        MakeMove(Move::y2);
+    else if (move == "y'")
+        MakeMove(Move::y_);
+    else if (move == "z")
+        MakeMove(Move::z);
+    else if (move == "z2")
+        MakeMove(Move::z2);
+    else if (move == "z'")
+        MakeMove(Move::z_);
+}
+auto Cube::MakeMoves(std::string_view moves) -> void
 {
     // split the string by spaces
-    std::vector<std::string_view> moves;
+    std::vector<std::string_view> movesSplitted;
     size_t start = 0;
     size_t end = 0;
-    while ((end = moveString.find(' ', start)) != std::string::npos)
+    while ((end = moves.find(' ', start)) != std::string::npos)
     {
-        moves.push_back(moveString.substr(start, end - start));
+        movesSplitted.push_back(moves.substr(start, end - start));
         start = end + 1;
     }
-    moves.push_back(moveString.substr(start));
+    movesSplitted.push_back(moves.substr(start));
 
     // make the moves
-    for (const auto& move : moves)
-    {
-        if (move == "U")
-            MakeMove(Move::U);
-        else if (move == "U2")
-            MakeMove(Move::U2);
-        else if (move == "U'")
-            MakeMove(Move::U_);
-        else if (move == "u")
-            MakeMove(Move::u);
-        else if (move == "u'")
-            MakeMove(Move::u_);
-        else if (move == "F")
-            MakeMove(Move::F);
-        else if (move == "F2")
-            MakeMove(Move::F2);
-        else if (move == "F'")
-            MakeMove(Move::F_);
-        else if (move == "f")
-            MakeMove(Move::f);
-        else if (move == "f'")
-            MakeMove(Move::f_);
-        else if (move == "R")
-            MakeMove(Move::R);
-        else if (move == "R2")
-            MakeMove(Move::R2);
-        else if (move == "R'")
-            MakeMove(Move::R_);
-        else if (move == "r")
-            MakeMove(Move::r);
-        else if (move == "r'")
-            MakeMove(Move::r_);
-        else if (move == "B")
-            MakeMove(Move::B);
-        else if (move == "B2")
-            MakeMove(Move::B2);
-        else if (move == "B'")
-            MakeMove(Move::B_);
-        else if (move == "b")
-            MakeMove(Move::b);
-        else if (move == "b'")
-            MakeMove(Move::b_);
-        else if (move == "L")
-            MakeMove(Move::L);
-        else if (move == "L2")
-            MakeMove(Move::L2);
-        else if (move == "L'")
-            MakeMove(Move::L_);
-        else if (move == "l")
-            MakeMove(Move::l);
-        else if (move == "l'")
-            MakeMove(Move::l_);
-        else if (move == "D")
-            MakeMove(Move::D);
-        else if (move == "D2")
-            MakeMove(Move::D2);
-        else if (move == "D'")
-            MakeMove(Move::D_);
-        else if (move == "d")
-            MakeMove(Move::d);
-        else if (move == "d'")
-            MakeMove(Move::d_);
-        else if (move == "M")
-            MakeMove(Move::M);
-        else if (move == "M2")
-            MakeMove(Move::M2);
-        else if (move == "M'")
-            MakeMove(Move::M_);
-        else if (move == "E")
-            MakeMove(Move::E);
-        else if (move == "E2")
-            MakeMove(Move::E2);
-        else if (move == "E'")
-            MakeMove(Move::E_);
-        else if (move == "S")
-            MakeMove(Move::S);
-        else if (move == "S2")
-            MakeMove(Move::S2);
-        else if (move == "S'")
-            MakeMove(Move::S_);
-        else if (move == "x")
-            MakeMove(Move::x);
-        else if (move == "x2")
-            MakeMove(Move::x2);
-        else if (move == "x'")
-            MakeMove(Move::x_);
-        else if (move == "y")
-            MakeMove(Move::y);
-        else if (move == "y2")
-            MakeMove(Move::y2);
-        else if (move == "y'")
-            MakeMove(Move::y_);
-        else if (move == "z")
-            MakeMove(Move::z);
-        else if (move == "z2")
-            MakeMove(Move::z2);
-        else if (move == "z'")
-            MakeMove(Move::z_);
-    }
+    for (const auto& move : movesSplitted)
+        MakeMove(move);
 }
 
-auto Cube::Scramble() -> void
-{
-    for (uint32_t i = 0; i < static_cast<uint32_t>(sqrt(m_Layers) * 20); i++)
-        MakeTurn({
-            .LayerType = static_cast<Direction>(GetRandomValue(0, 2)),
-            .LayerIndex = static_cast<uint32_t>(GetRandomValue(0, m_Layers - 1)),
-            .Clockwise = static_cast<bool>(GetRandomValue(0, 1))
-        });
-}
 auto Cube::IsSolved() const -> bool
 {
     // if still animating, return false
@@ -747,6 +745,76 @@ auto Cube::MakeMultiLayerTurn(const std::vector<Turn>& turns) -> void
         _SetPieceColorsByIndices(indices, newPieceColors);
     }
     m_Rotations.emplace(*this, turns);
+}
+
+auto Cube::_MakeBigMove(std::string_view move) -> void
+{
+    size_t sideIndex = move.find_first_not_of("0123456789");
+
+    // split the move into count, side, and modifier
+    uint32_t depth;
+    char side;
+    char modifier;
+
+    depth = std::stoi(std::string(move.substr(0, sideIndex)));
+    side = move[sideIndex];
+    modifier = sideIndex + 1 < move.size() ? move[sideIndex + 1] : '\0';
+    
+    // make the move(s)
+    std::vector<Turn> turns;
+    for (uint32_t i = 0; (modifier != '2' && i < 1) || (modifier == '2' && i < 2); i++)
+    {
+        switch (side)
+        {
+        case 'U':
+            turns.push_back({
+                Direction::Horizontal,
+                m_Layers - 1 - depth,
+                modifier == '\0'
+            });
+            break;
+        case 'F':
+            turns.push_back({
+                Direction::Depthical,
+                m_Layers - 1 - depth,
+                modifier == '\0'
+            });
+            break;
+        case 'R':
+            turns.push_back({
+                Direction::Vertical,
+                m_Layers - 1 - depth,
+                modifier == '\0'
+            });
+            break;
+        case 'B':
+            turns.push_back({
+                Direction::Depthical,
+                depth,
+                modifier != '\0'
+            });
+            break;
+        case 'L':
+            turns.push_back({
+                Direction::Vertical,
+                depth,
+                modifier != '\0'
+            });
+            break;
+        case 'D':
+            turns.push_back({
+                Direction::Horizontal,
+                depth,
+                modifier != '\0'
+            });
+            break;
+        
+        default:
+            break;
+        }
+    }
+    
+    MakeMultiLayerTurn(turns);
 }
 
 auto Cube::_GetIndicesByTurn(const Turn& turn) const -> std::vector<PieceLocation>

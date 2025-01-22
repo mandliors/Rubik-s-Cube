@@ -31,6 +31,7 @@ target_sources(${PROJECT_NAME} PRIVATE
     src/Piece/PieceColors.cpp
     src/AxialRotation/AxialRotation.cpp
     src/Cube/Cube.cpp
+    src/CubeScrambler/CubeScrambler.cpp
     src/CubeSolver/CubeSolver.cpp
     src/ColorPattern/ColorPattern.cpp
     src/GUI/GUI.cpp

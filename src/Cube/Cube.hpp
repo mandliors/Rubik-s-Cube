@@ -23,15 +23,24 @@ public:
     Cube(uint32_t layers, const Vector3& position, float size);
     
     auto MakeMove(Move move) -> void;
-    auto MakeMoves(std::string_view moveString) -> void;
+    auto MakeMove(std::string_view move) -> void;
+    auto MakeMoves(std::string_view moves) -> void;
     inline auto MakeMoves(Move move, auto... moves) -> void
     {
         MakeMove(move);
         (MakeMove(moves), ...);
     }
-    
-    auto Scramble() -> void;
+
+    inline auto FinishAllQueuedMoves() -> void
+    {
+        bool animations = m_Animations;
+        m_Animations = false;
+        Update(69.0f);
+        m_Animations = animations;
+    }   
+
     auto IsSolved() const -> bool;
+    inline auto IsTurning() const -> bool { return !m_Rotations.empty(); }
 
     inline auto SetSize(uint32_t size) -> void { m_Layers = size; Reset(); }
     inline auto GetSize() const -> uint32_t { return m_Layers; }
@@ -172,6 +181,8 @@ private:
         
         m_Pieces[index] = piece;
     }
+
+    auto _MakeBigMove(std::string_view move) -> void;
 
     auto _GetIndicesByTurn(const Turn& turn) const -> std::vector<PieceLocation>;
     auto _GetIndicesByTurnInversed(const Turn& turn) const -> std::vector<PieceLocation>;
