@@ -34,7 +34,7 @@ ColorPattern::ColorPattern(const std::string& colors)
 auto ColorPattern::Match(const ColorPattern& other) const -> uint32_t
 {
     if (m_CubeSize != other.GetCubeSize())
-        return false;
+        return 5;
 
     // check of the patterns match in any of the 4 rotations
     bool match;

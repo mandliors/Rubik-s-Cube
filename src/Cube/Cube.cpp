@@ -3,6 +3,8 @@
 #include <raymath.h>
 #include <rlgl.h>
 
+#include <string>
+
 Cube::Cube(uint32_t layers, const Vector3& position, float size)
     : m_Layers(layers), m_Position(position), m_Size(size), m_Animations(true), m_AnimationSpeed(10.0f)
 {

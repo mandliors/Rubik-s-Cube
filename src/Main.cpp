@@ -27,7 +27,7 @@ enum class DuelState
     SOLVED
 };
 
-constexpr float WINDOW_SCALE = 1.0f;
+constexpr float WINDOW_SCALE = 2.0f;
 
 constexpr uint32_t WINDOW_WIDTH = static_cast<uint32_t>(800 * WINDOW_SCALE);
 constexpr uint32_t WINDOW_HEIGHT = static_cast<uint32_t>(600 * WINDOW_SCALE);
